@@ -38,6 +38,7 @@ func newUDFNode(et *ExecutingTask, n *pipeline.UDFNode, d NodeDiagnostic) (*UDFN
 		u:       n,
 		aborted: make(chan struct{}),
 	}
+	// TODO: Figure out how to remove this
 	l := log.New(os.Stdout, "REMOVE ME", log.LstdFlags)
 	// Create the UDF
 	f, err := et.tm.UDFService.Create(
