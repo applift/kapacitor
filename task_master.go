@@ -70,7 +70,7 @@ type Diagnostic interface {
 type UDFService interface {
 	List() []string
 	Info(name string) (udf.Info, bool)
-	Create(name, taskID, nodeID string, l *log.Logger, abortCallback func()) (udf.Interface, error)
+	Create(name, taskID, nodeID string, d udf.Diagnostic, abortCallback func()) (udf.Interface, error)
 }
 
 var ErrTaskMasterClosed = errors.New("TaskMaster is closed")

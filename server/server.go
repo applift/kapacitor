@@ -464,8 +464,8 @@ func (s *Server) appendDeadmanService() {
 }
 
 func (s *Server) appendUDFService() {
-	l := s.LogService.NewLogger("[udf] ", log.LstdFlags)
-	srv := udf.NewService(s.config.UDF, l)
+	d := s.DiagService.NewUDFServiceHandler()
+	srv := udf.NewService(s.config.UDF, d)
 
 	s.TaskMaster.UDFService = srv
 	s.AppendService("udf", srv)

@@ -3,11 +3,13 @@ package udf_test
 import (
 	"bufio"
 	"io"
-	"log"
 
+	"github.com/influxdata/kapacitor/services/diagnostic"
 	"github.com/influxdata/kapacitor/udf"
 	"github.com/influxdata/kapacitor/udf/agent"
 )
+
+var kapacitorDiag = diagnostic.NewService().NewKapacitorHandler()
 
 // IO implements a UDF process communication.
 // Connect up to UDF server via In/Out pipes.
@@ -124,21 +126,21 @@ type UDF struct {
 	nodeID string
 
 	*udf.Server
-	uio    *IO
-	logger *log.Logger
+	uio  *IO
+	diag udf.Diagnostic
 }
 
-func New(taskID, nodeID string, uio *IO, l *log.Logger) *UDF {
+func New(taskID, nodeID string, uio *IO, d udf.Diagnostic) *UDF {
 	return &UDF{
 		taskID: taskID,
 		nodeID: nodeID,
 		uio:    uio,
-		logger: l,
+		diag:   d,
 	}
 }
 
 func (u *UDF) Open() error {
-	u.Server = udf.NewServer(u.taskID, u.nodeID, u.uio.Out(), u.uio.In(), u.logger, 0, nil, nil)
+	u.Server = udf.NewServer(u.taskID, u.nodeID, u.uio.Out(), u.uio.In(), u.diag, 0, nil, nil)
 	return u.Server.Start()
 }
 

@@ -237,7 +237,7 @@ func (h *KapacitorHandler) LogData(level string, prefix, data string) {
 }
 
 func (h *KapacitorHandler) UDFLog(s string) {
-	// TODO: implement
+	h.l.Info("UDF log", zap.String("text", s))
 }
 
 // Alerta handler
@@ -511,4 +511,12 @@ func (h *VictorOpsHandler) WithContext(ctx ...keyvalue.T) victorops.Diagnostic {
 	return &VictorOpsHandler{
 		l: h.l.With(fields...),
 	}
+}
+
+type UDFServiceHandler struct {
+	l *zap.Logger
+}
+
+func (h *UDFServiceHandler) LoadedUDFInfo(udf string) {
+	h.l.Debug("loaded UDF info", zap.String("udf", udf))
 }

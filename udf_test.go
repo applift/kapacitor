@@ -2,10 +2,7 @@ package kapacitor_test
 
 import (
 	"bytes"
-	"fmt"
 	"io"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -14,23 +11,26 @@ import (
 	"github.com/influxdata/kapacitor/command"
 	"github.com/influxdata/kapacitor/edge"
 	"github.com/influxdata/kapacitor/models"
+	"github.com/influxdata/kapacitor/services/diagnostic"
 	"github.com/influxdata/kapacitor/udf"
 	"github.com/influxdata/kapacitor/udf/agent"
 	udf_test "github.com/influxdata/kapacitor/udf/test"
 )
 
+var kapacitorDiag = diagnostic.NewService().NewKapacitorHandler()
+
 func newUDFSocket(name string) (*kapacitor.UDFSocket, *udf_test.IO) {
 	uio := udf_test.NewIO()
-	l := log.New(os.Stderr, fmt.Sprintf("[%s] ", name), log.LstdFlags)
-	u := kapacitor.NewUDFSocket(name, "testNode", newTestSocket(uio), l, 0, nil)
+	d := kapacitorDiag.WithNodeContext(name)
+	u := kapacitor.NewUDFSocket(name, "testNode", newTestSocket(uio), d, 0, nil)
 	return u, uio
 }
 
 func newUDFProcess(name string) (*kapacitor.UDFProcess, *udf_test.IO) {
 	uio := udf_test.NewIO()
 	cmd := newTestCommander(uio)
-	l := log.New(os.Stderr, fmt.Sprintf("[%s] ", name), log.LstdFlags)
-	u := kapacitor.NewUDFProcess(name, "testNode", cmd, command.Spec{}, l, 0, nil)
+	d := kapacitorDiag.WithNodeContext(name)
+	u := kapacitor.NewUDFProcess(name, "testNode", cmd, command.Spec{}, d, 0, nil)
 	return u, uio
 }
 

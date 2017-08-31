@@ -5938,11 +5938,11 @@ stream
 		return
 	}
 	uio := udf_test.NewIO()
-	udfService.CreateFunc = func(name, taskID, nodeID string, l *log.Logger, abortCallback func()) (udf.Interface, error) {
+	udfService.CreateFunc = func(name, taskID, nodeID string, d udf.Diagnostic, abortCallback func()) (udf.Interface, error) {
 		if name != "customFunc" {
 			return nil, fmt.Errorf("unknown function %s", name)
 		}
-		return udf_test.New(taskID, nodeID, uio, l), nil
+		return udf_test.New(taskID, nodeID, uio, d), nil
 	}
 
 	tmInit := func(tm *kapacitor.TaskMaster) {

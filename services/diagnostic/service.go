@@ -10,6 +10,7 @@ import (
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/storage"
 	"github.com/influxdata/kapacitor/services/task_store"
+	udfservice "github.com/influxdata/kapacitor/services/udf"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 )
@@ -25,6 +26,7 @@ type Service interface {
 	NewKapacitorHandler() kapacitor.Diagnostic
 	NewAlertHandler() alert.Diagnostic
 	NewHipChatHandler() hipchat.Diagnostic
+	NewUDFServiceHandler() udfservice.Diagnostic
 }
 
 type service struct {
@@ -96,5 +98,11 @@ func (s *service) NewAlertHandler() alert.Diagnostic {
 func (s *service) NewHipChatHandler() hipchat.Diagnostic {
 	return &HipChatHandler{
 		l: s.logger.With(zap.String("service", "hipchat")),
+	}
+}
+
+func (s *service) NewUDFServiceHandler() udfservice.Diagnostic {
+	return &UDFServiceHandler{
+		l: s.logger.With(zap.String("service", "udf")),
 	}
 }
