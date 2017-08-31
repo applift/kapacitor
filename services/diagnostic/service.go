@@ -4,6 +4,7 @@ import (
 	"github.com/influxdata/kapacitor"
 	"github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/reporting"
 	"github.com/influxdata/kapacitor/services/slack"
@@ -23,6 +24,7 @@ type Service interface {
 	NewAlertaHandler() alerta.Diagnostic
 	NewKapacitorHandler() kapacitor.Diagnostic
 	NewAlertHandler() alert.Diagnostic
+	NewHipChatHandler() hipchat.Diagnostic
 }
 
 type service struct {
@@ -88,5 +90,11 @@ func (s *service) NewKapacitorHandler() kapacitor.Diagnostic {
 func (s *service) NewAlertHandler() alert.Diagnostic {
 	return &AlertHandler{
 		l: s.logger.With(zap.String("service", "alert")),
+	}
+}
+
+func (s *service) NewHipChatHandler() hipchat.Diagnostic {
+	return &HipChatHandler{
+		l: s.logger.With(zap.String("service", "hipchat")),
 	}
 }

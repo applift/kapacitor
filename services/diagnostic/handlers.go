@@ -11,6 +11,7 @@ import (
 	"github.com/influxdata/kapacitor/models"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
@@ -261,6 +262,26 @@ func (h *AlertaHandler) TemplateError(err error, kv keyvalue.T) {
 }
 
 func (h *AlertaHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+// HipChat handler
+type HipChatHandler struct {
+	l *zap.Logger
+}
+
+func (h *HipChatHandler) WithContext(ctx ...keyvalue.T) hipchat.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &HipChatHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+func (h *HipChatHandler) Error(msg string, err error) {
 	h.l.Error(msg, zap.Error(err))
 }
 

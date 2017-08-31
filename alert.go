@@ -288,12 +288,12 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			Room:  hc.Room,
 			Token: hc.Token,
 		}
-		h := et.tm.HipChatService.Handler(c, l)
+		h := et.tm.HipChatService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	if len(n.HipChatHandlers) == 0 && (et.tm.HipChatService != nil && et.tm.HipChatService.Global()) {
 		c := hipchat.HandlerConfig{}
-		h := et.tm.HipChatService.Handler(c, l)
+		h := et.tm.HipChatService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	// If HipChat has been configured with state changes only set it.

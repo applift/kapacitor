@@ -151,7 +151,7 @@ type TaskMaster struct {
 	HipChatService interface {
 		Global() bool
 		StateChangesOnly() bool
-		Handler(hipchat.HandlerConfig, *log.Logger) alert.Handler
+		Handler(hipchat.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	AlertaService interface {
 		DefaultHandlerConfig() alerta.HandlerConfig

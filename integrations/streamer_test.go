@@ -7560,7 +7560,7 @@ stream
 		c.URL = ts.URL
 		c.Room = "1231234"
 		c.Token = "testtoken1231234"
-		sl := hipchat.NewService(c, logService.NewLogger("[test_hipchat] ", log.LstdFlags))
+		sl := hipchat.NewService(c, diagService.NewHipChatHandler())
 		tm.HipChatService = sl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)

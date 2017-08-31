@@ -611,8 +611,8 @@ func (s *Server) appendTelegramService() {
 
 func (s *Server) appendHipChatService() {
 	c := s.config.HipChat
-	l := s.LogService.NewLogger("[hipchat] ", log.LstdFlags)
-	srv := hipchat.NewService(c, l)
+	d := s.DiagService.NewHipChatHandler()
+	srv := hipchat.NewService(c, d)
 
 	s.TaskMaster.HipChatService = srv
 	s.AlertService.HipChatService = srv
