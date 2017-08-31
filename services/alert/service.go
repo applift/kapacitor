@@ -89,7 +89,7 @@ type Service struct {
 		Handler(opsgenie.HandlerConfig, *log.Logger) alert.Handler
 	}
 	PagerDutyService interface {
-		Handler(pagerduty.HandlerConfig, *log.Logger) alert.Handler
+		Handler(pagerduty.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	PushoverService interface {
 		Handler(pushover.HandlerConfig, *log.Logger) alert.Handler
@@ -812,7 +812,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h = s.PagerDutyService.Handler(c, l)
+		h = s.PagerDutyService.Handler(c, ctx...)
 		h = newExternalHandler(h)
 	case "pushover":
 		c := pushover.HandlerConfig{}

@@ -2,10 +2,11 @@ package diagnostic
 
 import (
 	"github.com/influxdata/kapacitor"
-	"github.com/influxdata/kapacitor/services/alert"
+	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
+	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/reporting"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/storage"
@@ -18,14 +19,16 @@ import (
 type Service interface {
 	NewVictorOpsHandler() victorops.Diagnostic
 	NewSlackHandler() slack.Diagnostic
+	NewAlertaHandler() alerta.Diagnostic
+	NewHipChatHandler() hipchat.Diagnostic
+	NewPagerDutyHandler() pagerduty.Diagnostic
+
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
 	NewReportingHandler() reporting.Diagnostic
 	NewHTTPDHandler() httpd.Diagnostic
-	NewAlertaHandler() alerta.Diagnostic
 	NewKapacitorHandler() kapacitor.Diagnostic
-	NewAlertHandler() alert.Diagnostic
-	NewHipChatHandler() hipchat.Diagnostic
+	NewAlertServiceHandler() alertservice.Diagnostic
 	NewUDFServiceHandler() udfservice.Diagnostic
 }
 
@@ -89,8 +92,8 @@ func (s *service) NewKapacitorHandler() kapacitor.Diagnostic {
 	}
 }
 
-func (s *service) NewAlertHandler() alert.Diagnostic {
-	return &AlertHandler{
+func (s *service) NewAlertServiceHandler() alertservice.Diagnostic {
+	return &AlertServiceHandler{
 		l: s.logger.With(zap.String("service", "alert")),
 	}
 }
@@ -98,6 +101,13 @@ func (s *service) NewAlertHandler() alert.Diagnostic {
 func (s *service) NewHipChatHandler() hipchat.Diagnostic {
 	return &HipChatHandler{
 		l: s.logger.With(zap.String("service", "hipchat")),
+	}
+}
+
+func (s *service) NewPagerDutyHandler() pagerduty.Diagnostic {
+	// TODO: fix
+	return &PagerDutyHandler{
+		l: s.logger.With(zap.String("service", "pagerduty")),
 	}
 }
 

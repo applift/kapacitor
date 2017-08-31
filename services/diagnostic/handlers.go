@@ -12,48 +12,49 @@ import (
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
+	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-type AlertHandler struct {
+type AlertServiceHandler struct {
 	l *zap.Logger
 }
 
-func (h *AlertHandler) WithHandlerContext(ctx ...keyvalue.T) alertservice.HandlerDiagnostic {
+func (h *AlertServiceHandler) WithHandlerContext(ctx ...keyvalue.T) alertservice.HandlerDiagnostic {
 	fields := []zapcore.Field{}
 	for _, kv := range ctx {
 		fields = append(fields, zap.String(kv.Key, kv.Value))
 	}
 
-	return &AlertHandler{
+	return &AlertServiceHandler{
 		l: h.l.With(fields...),
 	}
 }
 
-func (h *AlertHandler) MigratingHandlerSpecs() {
+func (h *AlertServiceHandler) MigratingHandlerSpecs() {
 	h.l.Debug("migrating old v1.2 handler specs")
 }
 
-func (h *AlertHandler) MigratingOldHandlerSpec(spec string) {
+func (h *AlertServiceHandler) MigratingOldHandlerSpec(spec string) {
 	h.l.Debug("migrating old handler spec", zap.String("handler", spec))
 }
 
-func (h *AlertHandler) FoundHandlerRows(length int) {
+func (h *AlertServiceHandler) FoundHandlerRows(length int) {
 	h.l.Debug("found handler rows", zap.Int("handler_row_count", length))
 }
 
-func (h *AlertHandler) CreatingNewHandlers(length int) {
+func (h *AlertServiceHandler) CreatingNewHandlers(length int) {
 	h.l.Debug("creating new handlers in place of old handlers", zap.Int("handler_row_count", length))
 }
 
-func (h *AlertHandler) FoundNewHandler(key string) {
+func (h *AlertServiceHandler) FoundNewHandler(key string) {
 	h.l.Debug("found new handler skipping", zap.String("handler", key))
 }
 
-func (h *AlertHandler) Error(msg string, err error, ctx ...keyvalue.T) {
+func (h *AlertServiceHandler) Error(msg string, err error, ctx ...keyvalue.T) {
 	if len(ctx) == 0 {
 		h.l.Error(msg, zap.Error(err))
 		return
@@ -392,6 +393,26 @@ type ReportingHandler struct {
 }
 
 func (h *ReportingHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+// PagerDuty handler
+type PagerDutyHandler struct {
+	l *zap.Logger
+}
+
+func (h *PagerDutyHandler) WithContext(ctx ...keyvalue.T) pagerduty.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &PagerDutyHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+func (h *PagerDutyHandler) Error(msg string, err error) {
 	h.l.Error(msg, zap.Error(err))
 }
 

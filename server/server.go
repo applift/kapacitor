@@ -321,7 +321,7 @@ func (s *Server) appendConfigOverrideService() {
 }
 
 func (s *Server) initAlertService() {
-	d := s.DiagService.NewAlertHandler()
+	d := s.DiagService.NewAlertServiceHandler()
 	srv := alert.NewService(d)
 
 	srv.Commander = s.Commander
@@ -522,8 +522,8 @@ func (s *Server) appendVictorOpsService() {
 
 func (s *Server) appendPagerDutyService() {
 	c := s.config.PagerDuty
-	l := s.LogService.NewLogger("[pagerduty] ", log.LstdFlags)
-	srv := pagerduty.NewService(c, l)
+	d := s.DiagService.NewPagerDutyHandler()
+	srv := pagerduty.NewService(c, d)
 	srv.HTTPDService = s.HTTPDService
 
 	s.TaskMaster.PagerDutyService = srv

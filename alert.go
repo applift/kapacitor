@@ -199,12 +199,12 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		c := pagerduty.HandlerConfig{
 			ServiceKey: pd.ServiceKey,
 		}
-		h := et.tm.PagerDutyService.Handler(c, l)
+		h := et.tm.PagerDutyService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	if len(n.PagerDutyHandlers) == 0 && (et.tm.PagerDutyService != nil && et.tm.PagerDutyService.Global()) {
 		c := pagerduty.HandlerConfig{}
-		h := et.tm.PagerDutyService.Handler(c, l)
+		h := et.tm.PagerDutyService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 

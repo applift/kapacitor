@@ -7884,7 +7884,7 @@ stream
 		c.Enabled = true
 		c.URL = ts.URL
 		c.ServiceKey = "service_key"
-		pd := pagerduty.NewService(c, logService.NewLogger("[test_pd] ", log.LstdFlags))
+		pd := pagerduty.NewService(c, diagService.NewPagerDutyHandler())
 		pd.HTTPDService = tm.HTTPDService
 		tm.PagerDutyService = pd
 
@@ -10889,7 +10889,7 @@ func createTaskMaster() (*kapacitor.TaskMaster, error) {
 	tm.TaskStore = taskStore{}
 	tm.DeadmanService = deadman{}
 	tm.HTTPPostService = httppost.NewService(nil, logService.NewLogger("[httppost] ", log.LstdFlags))
-	as := alertservice.NewService(diagService.NewAlertHandler())
+	as := alertservice.NewService(diagService.NewAlertServiceHandler())
 	as.StorageService = storagetest.New()
 	as.HTTPDService = httpdService
 	if err := as.Open(); err != nil {
