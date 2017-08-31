@@ -9,6 +9,7 @@ import (
 	"github.com/influxdata/kapacitor/alert"
 	"github.com/influxdata/kapacitor/keyvalue"
 	"github.com/influxdata/kapacitor/models"
+	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/victorops"
@@ -16,9 +17,73 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// TaskMaster Handler
+type AlertHandler struct {
+	l *zap.Logger
+}
 
-// TODO: have a single underlying struct for all of
+func (h *AlertHandler) WithHandlerContext(ctx ...keyvalue.T) alertservice.HandlerDiagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &AlertHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+func (h *AlertHandler) MigratingHandlerSpecs() {
+	h.l.Debug("migrating old v1.2 handler specs")
+}
+
+func (h *AlertHandler) MigratingOldHandlerSpec(spec string) {
+	h.l.Debug("migrating old handler spec", zap.String("handler", spec))
+}
+
+func (h *AlertHandler) FoundHandlerRows(length int) {
+	h.l.Debug("found handler rows", zap.Int("handler_row_count", length))
+}
+
+func (h *AlertHandler) CreatingNewHandlers(length int) {
+	h.l.Debug("creating new handlers in place of old handlers", zap.Int("handler_row_count", length))
+}
+
+func (h *AlertHandler) FoundNewHandler(key string) {
+	h.l.Debug("found new handler skipping", zap.String("handler", key))
+}
+
+func (h *AlertHandler) Error(msg string, err error, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Error(msg, zap.Error(err))
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	// This isn't great wrt to allocation, but should not ever actually occur
+	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
+	fields[0] = zap.Error(err)
+	for i := 1; i < len(fields); i++ {
+		kv := ctx[i-1]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Error(msg, fields...)
+}
+
+// Kapcitor Handler
+
 type KapacitorHandler struct {
 	l *zap.Logger
 }

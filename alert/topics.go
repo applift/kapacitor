@@ -2,7 +2,6 @@ package alert
 
 import (
 	"fmt"
-	"log"
 	"path"
 	"sort"
 	"sync"
@@ -21,13 +20,14 @@ type Topics struct {
 
 	topics map[string]*Topic
 
-	logger *log.Logger
+	// TODO: revist
+	//logger *log.Logger
 }
 
-func NewTopics(l *log.Logger) *Topics {
+func NewTopics() *Topics {
 	s := &Topics{
 		topics: make(map[string]*Topic),
-		logger: l,
+		//logger: l,
 	}
 	return s
 }

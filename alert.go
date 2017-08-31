@@ -135,7 +135,8 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		c := alertservice.TCPHandlerConfig{
 			Address: tcp.Address,
 		}
-		h := alertservice.NewTCPHandler(c, l)
+		// TODO: this okay?
+		h := alertservice.NewTCPHandler(c, an.diag)
 		an.handlers = append(an.handlers, h)
 	}
 
@@ -164,7 +165,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			Args:      e.Command[1:],
 			Commander: et.tm.Commander,
 		}
-		h := alertservice.NewExecHandler(c, l)
+		h := alertservice.NewExecHandler(c, an.diag)
 		an.handlers = append(an.handlers, h)
 	}
 
@@ -174,7 +175,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		if log.Mode != 0 {
 			c.Mode = os.FileMode(log.Mode)
 		}
-		h, err := alertservice.NewLogHandler(c, l)
+		h, err := alertservice.NewLogHandler(c, an.diag)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create log alert handler")
 		}

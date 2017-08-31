@@ -2,6 +2,7 @@ package diagnostic
 
 import (
 	"github.com/influxdata/kapacitor"
+	"github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/reporting"
@@ -21,6 +22,7 @@ type Service interface {
 	NewHTTPDHandler() httpd.Diagnostic
 	NewAlertaHandler() alerta.Diagnostic
 	NewKapacitorHandler() kapacitor.Diagnostic
+	NewAlertHandler() alert.Diagnostic
 }
 
 type service struct {
@@ -80,5 +82,11 @@ func (s *service) NewAlertaHandler() alerta.Diagnostic {
 func (s *service) NewKapacitorHandler() kapacitor.Diagnostic {
 	return &KapacitorHandler{
 		l: s.logger.With(zap.String("service", "kapacitor")), // TODO: what here
+	}
+}
+
+func (s *service) NewAlertHandler() alert.Diagnostic {
+	return &AlertHandler{
+		l: s.logger.With(zap.String("service", "alert")),
 	}
 }

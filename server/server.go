@@ -321,8 +321,8 @@ func (s *Server) appendConfigOverrideService() {
 }
 
 func (s *Server) initAlertService() {
-	l := s.LogService.NewLogger("[alert] ", log.LstdFlags)
-	srv := alert.NewService(l)
+	d := s.DiagService.NewAlertHandler()
+	srv := alert.NewService(d)
 
 	srv.Commander = s.Commander
 	srv.HTTPDService = s.HTTPDService
