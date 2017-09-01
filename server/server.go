@@ -337,8 +337,7 @@ func (s *Server) appendAlertService() {
 }
 
 func (s *Server) appendTesterService() {
-	l := s.LogService.NewLogger("[service-tests] ", log.LstdFlags)
-	srv := servicetest.NewService(servicetest.NewConfig(), l)
+	srv := servicetest.NewService(servicetest.NewConfig())
 	srv.HTTPDService = s.HTTPDService
 
 	s.TesterService = srv
