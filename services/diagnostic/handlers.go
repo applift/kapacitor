@@ -16,6 +16,7 @@ import (
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/pushover"
+	"github.com/influxdata/kapacitor/services/sensu"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/victorops"
@@ -624,6 +625,53 @@ func (h *HTTPPostHandler) WithContext(ctx ...keyvalue.T) httppost.Diagnostic {
 	}
 
 	return &HTTPPostHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// Sensu handler
+
+type SensuHandler struct {
+	l *zap.Logger
+}
+
+func (h *SensuHandler) Error(msg string, err error, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Error(msg, zap.Error(err))
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	// This isn't great wrt to allocation, but should not ever actually occur
+	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
+	fields[0] = zap.Error(err)
+	for i := 1; i < len(fields); i++ {
+		kv := ctx[i-1]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Error(msg, fields...)
+}
+
+func (h *SensuHandler) WithContext(ctx ...keyvalue.T) sensu.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &SensuHandler{
 		l: h.l.With(fields...),
 	}
 }

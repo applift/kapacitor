@@ -158,7 +158,7 @@ type TaskMaster struct {
 		Handler(alerta.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	SensuService interface {
-		Handler(sensu.HandlerConfig, *log.Logger) (alert.Handler, error)
+		Handler(sensu.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	TalkService interface {
 		Handler(*log.Logger) alert.Handler

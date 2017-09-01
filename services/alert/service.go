@@ -98,7 +98,7 @@ type Service struct {
 		Handler(httppost.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	SensuService interface {
-		Handler(sensu.HandlerConfig, *log.Logger) (alert.Handler, error)
+		Handler(sensu.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	SlackService interface {
 		Handler(slack.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -845,7 +845,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h, err = s.SensuService.Handler(c, l)
+		h, err = s.SensuService.Handler(c, ctx...)
 		if err != nil {
 			return handler{}, err
 		}

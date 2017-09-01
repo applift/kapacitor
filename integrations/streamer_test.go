@@ -7283,7 +7283,7 @@ stream
 		c.Enabled = true
 		c.Addr = ts.Addr
 		c.Source = "Kapacitor"
-		sl := sensu.NewService(c, logService.NewLogger("[test_sensu] ", log.LstdFlags))
+		sl := sensu.NewService(c, diagService.NewSensuHandler())
 		tm.SensuService = sl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)

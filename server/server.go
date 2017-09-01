@@ -559,8 +559,8 @@ func (s *Server) appendHTTPPostService() {
 
 func (s *Server) appendSensuService() {
 	c := s.config.Sensu
-	l := s.LogService.NewLogger("[sensu] ", log.LstdFlags)
-	srv := sensu.NewService(c, l)
+	d := s.DiagService.NewSensuHandler()
+	srv := sensu.NewService(c, d)
 
 	s.TaskMaster.SensuService = srv
 	s.AlertService.SensuService = srv

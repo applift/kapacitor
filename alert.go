@@ -213,7 +213,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			Source:   s.Source,
 			Handlers: s.HandlersList,
 		}
-		h, err := et.tm.SensuService.Handler(c, l)
+		h, err := et.tm.SensuService.Handler(c, ctx...)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create sensu alert handler")
 		}
