@@ -144,12 +144,12 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		c := smtp.HandlerConfig{
 			To: email.ToList,
 		}
-		h := et.tm.SMTPService.Handler(c, l)
+		h := et.tm.SMTPService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	if len(n.EmailHandlers) == 0 && (et.tm.SMTPService != nil && et.tm.SMTPService.Global()) {
 		c := smtp.HandlerConfig{}
-		h := et.tm.SMTPService.Handler(c, l)
+		h := et.tm.SMTPService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	// If email has been configured with state changes only set it.

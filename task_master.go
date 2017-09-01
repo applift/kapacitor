@@ -110,7 +110,7 @@ type TaskMaster struct {
 	SMTPService interface {
 		Global() bool
 		StateChangesOnly() bool
-		Handler(smtp.HandlerConfig, *log.Logger) alert.Handler
+		Handler(smtp.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	MQTTService interface {
 		Handler(mqtt.HandlerConfig, *log.Logger) alert.Handler

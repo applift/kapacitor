@@ -14,6 +14,7 @@ import (
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/slack"
+	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -533,6 +534,27 @@ func (h *VictorOpsHandler) WithContext(ctx ...keyvalue.T) victorops.Diagnostic {
 		l: h.l.With(fields...),
 	}
 }
+
+type SMTPHandler struct {
+	l *zap.Logger
+}
+
+func (h *SMTPHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *SMTPHandler) WithContext(ctx ...keyvalue.T) smtp.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &SMTPHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// UDF service handler
 
 type UDFServiceHandler struct {
 	l *zap.Logger

@@ -347,8 +347,8 @@ func (s *Server) appendTesterService() {
 
 func (s *Server) appendSMTPService() {
 	c := s.config.SMTP
-	l := s.LogService.NewLogger("[smtp] ", log.LstdFlags)
-	srv := smtp.NewService(c, l)
+	d := s.DiagService.NewSMTPHandler()
+	srv := smtp.NewService(c, d)
 
 	s.TaskMaster.SMTPService = srv
 	s.AlertService.SMTPService = srv

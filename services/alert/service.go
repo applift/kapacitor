@@ -104,7 +104,7 @@ type Service struct {
 		Handler(slack.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	SMTPService interface {
-		Handler(smtp.HandlerConfig, *log.Logger) alert.Handler
+		Handler(smtp.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	SNMPTrapService interface {
 		Handler(snmptrap.HandlerConfig, *log.Logger) (alert.Handler, error)
@@ -864,7 +864,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h = s.SMTPService.Handler(c, l)
+		h = s.SMTPService.Handler(c, ctx...)
 		h = newExternalHandler(h)
 	case "snmptrap":
 		c := snmptrap.HandlerConfig{}

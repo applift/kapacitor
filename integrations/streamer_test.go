@@ -8432,7 +8432,7 @@ Value: 10
 		Port:    smtpServer.Port,
 		From:    "test@example.com",
 	}
-	smtpService := smtp.NewService(sc, logService.NewLogger("[test-smtp] ", log.LstdFlags))
+	smtpService := smtp.NewService(sc, diagService.NewSMTPHandler())
 	if err := smtpService.Open(); err != nil {
 		t.Fatal(err)
 	}

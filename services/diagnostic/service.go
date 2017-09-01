@@ -9,6 +9,7 @@ import (
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/reporting"
 	"github.com/influxdata/kapacitor/services/slack"
+	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/storage"
 	"github.com/influxdata/kapacitor/services/task_store"
 	udfservice "github.com/influxdata/kapacitor/services/udf"
@@ -22,6 +23,7 @@ type Service interface {
 	NewAlertaHandler() alerta.Diagnostic
 	NewHipChatHandler() hipchat.Diagnostic
 	NewPagerDutyHandler() pagerduty.Diagnostic
+	NewSMTPHandler() smtp.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -105,9 +107,14 @@ func (s *service) NewHipChatHandler() hipchat.Diagnostic {
 }
 
 func (s *service) NewPagerDutyHandler() pagerduty.Diagnostic {
-	// TODO: fix
 	return &PagerDutyHandler{
 		l: s.logger.With(zap.String("service", "pagerduty")),
+	}
+}
+
+func (s *service) NewSMTPHandler() smtp.Diagnostic {
+	return &SMTPHandler{
+		l: s.logger.With(zap.String("service", "smtp")),
 	}
 }
 
