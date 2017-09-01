@@ -2560,7 +2560,7 @@ stream
 		c := httppost.Config{}
 		c.URL = ts.URL
 		c.Endpoint = "test"
-		sl := httppost.NewService(httppost.Configs{c}, logService.NewLogger("[test_httppost_endpoint] ", log.LstdFlags))
+		sl := httppost.NewService(httppost.Configs{c}, diagService.NewHTTPPostHandler())
 		tm.HTTPPostService = sl
 	}
 
@@ -8018,7 +8018,7 @@ stream
 		c.URL = ts.URL
 		c.Endpoint = "test"
 		c.Headers = headers
-		sl := httppost.NewService(httppost.Configs{c}, logService.NewLogger("[test_pushover] ", log.LstdFlags))
+		sl := httppost.NewService(httppost.Configs{c}, diagService.NewHTTPPostHandler())
 		tm.HTTPPostService = sl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)
@@ -10888,7 +10888,7 @@ func createTaskMaster() (*kapacitor.TaskMaster, error) {
 	tm.HTTPDService = httpdService
 	tm.TaskStore = taskStore{}
 	tm.DeadmanService = deadman{}
-	tm.HTTPPostService = httppost.NewService(nil, logService.NewLogger("[httppost] ", log.LstdFlags))
+	tm.HTTPPostService = httppost.NewService(nil, diagService.NewHTTPPostHandler())
 	as := alertservice.NewService(diagService.NewAlertServiceHandler())
 	as.StorageService = storagetest.New()
 	as.HTTPDService = httpdService

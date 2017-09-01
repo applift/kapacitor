@@ -132,7 +132,7 @@ type TaskMaster struct {
 		Handler(pushover.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	HTTPPostService interface {
-		Handler(httppost.HandlerConfig, *log.Logger) alert.Handler
+		Handler(httppost.HandlerConfig, ...keyvalue.T) alert.Handler
 		Endpoint(string) (*httppost.Endpoint, bool)
 	}
 	SlackService interface {

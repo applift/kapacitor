@@ -363,7 +363,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			Endpoint: p.Endpoint,
 			Headers:  p.Headers,
 		}
-		h := et.tm.HTTPPostService.Handler(c, l)
+		h := et.tm.HTTPPostService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 

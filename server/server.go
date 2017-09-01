@@ -547,8 +547,8 @@ func (s *Server) appendPushoverService() {
 
 func (s *Server) appendHTTPPostService() {
 	c := s.config.HTTPPost
-	l := s.LogService.NewLogger("[httppost] ", log.LstdFlags)
-	srv := httppost.NewService(c, l)
+	d := s.DiagService.NewHTTPPostHandler()
+	srv := httppost.NewService(c, d)
 
 	s.TaskMaster.HTTPPostService = srv
 	s.AlertService.HTTPPostService = srv

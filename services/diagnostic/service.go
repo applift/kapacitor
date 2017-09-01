@@ -6,6 +6,7 @@ import (
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
+	"github.com/influxdata/kapacitor/services/httppost"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/pushover"
@@ -28,6 +29,7 @@ type Service interface {
 	NewSMTPHandler() smtp.Diagnostic
 	NewOpsGenieHandler() opsgenie.Diagnostic
 	NewPushoverHandler() pushover.Diagnostic
+	NewHTTPPostHandler() httppost.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -137,5 +139,11 @@ func (s *service) NewOpsGenieHandler() opsgenie.Diagnostic {
 func (s *service) NewPushoverHandler() pushover.Diagnostic {
 	return &PushoverHandler{
 		l: s.logger.With(zap.String("service", "pushover")),
+	}
+}
+
+func (s *service) NewHTTPPostHandler() httppost.Diagnostic {
+	return &HTTPPostHandler{
+		l: s.logger.With(zap.String("service", "httppost")),
 	}
 }

@@ -12,6 +12,7 @@ import (
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
+	"github.com/influxdata/kapacitor/services/httppost"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/pushover"
@@ -608,6 +609,27 @@ func (h *PushoverHandler) WithContext(ctx ...keyvalue.T) pushover.Diagnostic {
 
 // Template handler
 
+type HTTPPostHandler struct {
+	l *zap.Logger
+}
+
+func (h *HTTPPostHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *HTTPPostHandler) WithContext(ctx ...keyvalue.T) httppost.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &HTTPPostHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// Template handler
+
 //type Handler struct {
 //	l *zap.Logger
 //}
@@ -616,7 +638,7 @@ func (h *PushoverHandler) WithContext(ctx ...keyvalue.T) pushover.Diagnostic {
 //	h.l.Error(msg, zap.Error(err))
 //}
 //
-//func (h *Handler) WithContext(ctx ...keyvalue.T) opsgenie.Diagnostic {
+//func (h *Handler) WithContext(ctx ...keyvalue.T) .Diagnostic {
 //	fields := []zapcore.Field{}
 //	for _, kv := range ctx {
 //		fields = append(fields, zap.String(kv.Key, kv.Value))
