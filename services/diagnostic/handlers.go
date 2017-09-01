@@ -19,6 +19,7 @@ import (
 	"github.com/influxdata/kapacitor/services/sensu"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
+	"github.com/influxdata/kapacitor/services/snmptrap"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -672,6 +673,27 @@ func (h *SensuHandler) WithContext(ctx ...keyvalue.T) sensu.Diagnostic {
 	}
 
 	return &SensuHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// SNMPTrap handler
+
+type SNMPTrapHandler struct {
+	l *zap.Logger
+}
+
+func (h *SNMPTrapHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *SNMPTrapHandler) WithContext(ctx ...keyvalue.T) snmptrap.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &SNMPTrapHandler{
 		l: h.l.With(fields...),
 	}
 }

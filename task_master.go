@@ -141,7 +141,7 @@ type TaskMaster struct {
 		Handler(slack.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	SNMPTrapService interface {
-		Handler(snmptrap.HandlerConfig, *log.Logger) (alert.Handler, error)
+		Handler(snmptrap.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	TelegramService interface {
 		Global() bool

@@ -8562,7 +8562,7 @@ stream
 	c.Addr = snmpServer.Addr
 	c.Community = snmpServer.Community
 	c.Retries = 2
-	st := snmptrap.NewService(c, logService.NewLogger("[test_snmptrap] ", log.LstdFlags))
+	st := snmptrap.NewService(c, diagService.NewSNMPTrapHandler())
 	if err := st.Open(); err != nil {
 		t.Fatal(err)
 	}

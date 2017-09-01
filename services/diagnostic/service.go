@@ -14,6 +14,7 @@ import (
 	"github.com/influxdata/kapacitor/services/sensu"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
+	"github.com/influxdata/kapacitor/services/snmptrap"
 	"github.com/influxdata/kapacitor/services/storage"
 	"github.com/influxdata/kapacitor/services/task_store"
 	udfservice "github.com/influxdata/kapacitor/services/udf"
@@ -32,6 +33,7 @@ type Service interface {
 	NewPushoverHandler() pushover.Diagnostic
 	NewHTTPPostHandler() httppost.Diagnostic
 	NewSensuHandler() sensu.Diagnostic
+	NewSNMPTrapHandler() snmptrap.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -153,5 +155,11 @@ func (s *service) NewHTTPPostHandler() httppost.Diagnostic {
 func (s *service) NewSensuHandler() sensu.Diagnostic {
 	return &SensuHandler{
 		l: s.logger.With(zap.String("service", "sensu")),
+	}
+}
+
+func (s *service) NewSNMPTrapHandler() snmptrap.Diagnostic {
+	return &SNMPTrapHandler{
+		l: s.logger.With(zap.String("service", "snmp")),
 	}
 }

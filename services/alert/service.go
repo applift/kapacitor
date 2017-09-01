@@ -107,7 +107,7 @@ type Service struct {
 		Handler(smtp.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	SNMPTrapService interface {
-		Handler(snmptrap.HandlerConfig, *log.Logger) (alert.Handler, error)
+		Handler(snmptrap.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	TalkService interface {
 		Handler(*log.Logger) alert.Handler
@@ -872,7 +872,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h, err = s.SNMPTrapService.Handler(c, l)
+		h, err = s.SNMPTrapService.Handler(c, ctx...)
 		if err != nil {
 			return handler{}, err
 		}

@@ -587,8 +587,8 @@ func (s *Server) appendSlackService() error {
 
 func (s *Server) appendSNMPTrapService() {
 	c := s.config.SNMPTrap
-	l := s.LogService.NewLogger("[snmptrap] ", log.LstdFlags)
-	srv := snmptrap.NewService(c, l)
+	d := s.DiagService.NewSNMPTrapHandler()
+	srv := snmptrap.NewService(c, d)
 
 	s.TaskMaster.SNMPTrapService = srv
 	s.AlertService.SNMPTrapService = srv

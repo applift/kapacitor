@@ -264,7 +264,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			TrapOid:  s.TrapOid,
 			DataList: dataList,
 		}
-		h, err := et.tm.SNMPTrapService.Handler(c, l)
+		h, err := et.tm.SNMPTrapService.Handler(c, ctx...)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create SNMP handler")
 		}
