@@ -498,8 +498,8 @@ func (s *Server) appendMQTTService() error {
 
 func (s *Server) appendOpsGenieService() {
 	c := s.config.OpsGenie
-	l := s.LogService.NewLogger("[opsgenie] ", log.LstdFlags)
-	srv := opsgenie.NewService(c, l)
+	d := s.DiagService.NewOpsGenieHandler()
+	srv := opsgenie.NewService(c, d)
 
 	s.TaskMaster.OpsGenieService = srv
 	s.AlertService.OpsGenieService = srv

@@ -372,12 +372,12 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			TeamsList:      og.TeamsList,
 			RecipientsList: og.RecipientsList,
 		}
-		h := et.tm.OpsGenieService.Handler(c, l)
+		h := et.tm.OpsGenieService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	if len(n.OpsGenieHandlers) == 0 && (et.tm.OpsGenieService != nil && et.tm.OpsGenieService.Global()) {
 		c := opsgenie.HandlerConfig{}
-		h := et.tm.OpsGenieService.Handler(c, l)
+		h := et.tm.OpsGenieService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 

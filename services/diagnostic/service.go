@@ -6,6 +6,7 @@ import (
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
+	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/reporting"
 	"github.com/influxdata/kapacitor/services/slack"
@@ -24,6 +25,7 @@ type Service interface {
 	NewHipChatHandler() hipchat.Diagnostic
 	NewPagerDutyHandler() pagerduty.Diagnostic
 	NewSMTPHandler() smtp.Diagnostic
+	NewOpsGenieHandler() opsgenie.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -121,5 +123,11 @@ func (s *service) NewSMTPHandler() smtp.Diagnostic {
 func (s *service) NewUDFServiceHandler() udfservice.Diagnostic {
 	return &UDFServiceHandler{
 		l: s.logger.With(zap.String("service", "udf")),
+	}
+}
+
+func (s *service) NewOpsGenieHandler() opsgenie.Diagnostic {
+	return &OpsGenieHandler{
+		l: s.logger.With(zap.String("service", "opsgenie")),
 	}
 }

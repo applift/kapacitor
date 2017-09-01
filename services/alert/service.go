@@ -86,7 +86,7 @@ type Service struct {
 		Handler(mqtt.HandlerConfig, *log.Logger) alert.Handler
 	}
 	OpsGenieService interface {
-		Handler(opsgenie.HandlerConfig, *log.Logger) alert.Handler
+		Handler(opsgenie.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	PagerDutyService interface {
 		Handler(pagerduty.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -804,7 +804,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h = s.OpsGenieService.Handler(c, l)
+		h = s.OpsGenieService.Handler(c, ctx...)
 		h = newExternalHandler(h)
 	case "pagerduty":
 		c := pagerduty.HandlerConfig{}

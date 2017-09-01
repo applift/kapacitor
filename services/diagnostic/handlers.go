@@ -12,6 +12,7 @@ import (
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
+	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
@@ -550,6 +551,25 @@ func (h *SMTPHandler) WithContext(ctx ...keyvalue.T) smtp.Diagnostic {
 	}
 
 	return &SMTPHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+type OpsGenieHandler struct {
+	l *zap.Logger
+}
+
+func (h *OpsGenieHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *OpsGenieHandler) WithContext(ctx ...keyvalue.T) opsgenie.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &OpsGenieHandler{
 		l: h.l.With(fields...),
 	}
 }

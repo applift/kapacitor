@@ -118,7 +118,7 @@ type TaskMaster struct {
 
 	OpsGenieService interface {
 		Global() bool
-		Handler(opsgenie.HandlerConfig, *log.Logger) alert.Handler
+		Handler(opsgenie.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	VictorOpsService interface {
 		Global() bool
