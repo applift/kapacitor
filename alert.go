@@ -353,7 +353,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		if p.Sound != "" {
 			c.Sound = p.Sound
 		}
-		h := et.tm.PushoverService.Handler(c, l)
+		h := et.tm.PushoverService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 

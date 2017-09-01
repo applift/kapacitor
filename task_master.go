@@ -129,7 +129,7 @@ type TaskMaster struct {
 		Handler(pagerduty.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	PushoverService interface {
-		Handler(pushover.HandlerConfig, *log.Logger) alert.Handler
+		Handler(pushover.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	HTTPPostService interface {
 		Handler(httppost.HandlerConfig, *log.Logger) alert.Handler

@@ -8,6 +8,7 @@ import (
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
+	"github.com/influxdata/kapacitor/services/pushover"
 	"github.com/influxdata/kapacitor/services/reporting"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
@@ -26,6 +27,7 @@ type Service interface {
 	NewPagerDutyHandler() pagerduty.Diagnostic
 	NewSMTPHandler() smtp.Diagnostic
 	NewOpsGenieHandler() opsgenie.Diagnostic
+	NewPushoverHandler() pushover.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -129,5 +131,11 @@ func (s *service) NewUDFServiceHandler() udfservice.Diagnostic {
 func (s *service) NewOpsGenieHandler() opsgenie.Diagnostic {
 	return &OpsGenieHandler{
 		l: s.logger.With(zap.String("service", "opsgenie")),
+	}
+}
+
+func (s *service) NewPushoverHandler() pushover.Diagnostic {
+	return &PushoverHandler{
+		l: s.logger.With(zap.String("service", "pushover")),
 	}
 }

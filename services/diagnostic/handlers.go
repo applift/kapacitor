@@ -14,6 +14,7 @@ import (
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
+	"github.com/influxdata/kapacitor/services/pushover"
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/victorops"
@@ -583,3 +584,45 @@ type UDFServiceHandler struct {
 func (h *UDFServiceHandler) LoadedUDFInfo(udf string) {
 	h.l.Debug("loaded UDF info", zap.String("udf", udf))
 }
+
+// Pushover handler
+
+type PushoverHandler struct {
+	l *zap.Logger
+}
+
+func (h *PushoverHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *PushoverHandler) WithContext(ctx ...keyvalue.T) pushover.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &PushoverHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// Template handler
+
+//type Handler struct {
+//	l *zap.Logger
+//}
+//
+//func (h *Handler) Error(msg string, err error) {
+//	h.l.Error(msg, zap.Error(err))
+//}
+//
+//func (h *Handler) WithContext(ctx ...keyvalue.T) opsgenie.Diagnostic {
+//	fields := []zapcore.Field{}
+//	for _, kv := range ctx {
+//		fields = append(fields, zap.String(kv.Key, kv.Value))
+//	}
+//
+//	return &Handler{
+//		l: h.l.With(fields...),
+//	}
+//}

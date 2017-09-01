@@ -7717,7 +7717,7 @@ stream
 		c.URL = ts.URL
 		c.UserKey = "user"
 		c.Token = "KzGDORePKggMaC0QOYAMyEEuzJnyUi"
-		sl := pushover.NewService(c, logService.NewLogger("[test_pushover] ", log.LstdFlags))
+		sl := pushover.NewService(c, diagService.NewPushoverHandler())
 		tm.PushoverService = sl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)

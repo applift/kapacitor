@@ -535,8 +535,8 @@ func (s *Server) appendPagerDutyService() {
 
 func (s *Server) appendPushoverService() {
 	c := s.config.Pushover
-	l := s.LogService.NewLogger("[pushover] ", log.LstdFlags)
-	srv := pushover.NewService(c, l)
+	d := s.DiagService.NewPushoverHandler()
+	srv := pushover.NewService(c, d)
 
 	s.TaskMaster.PushoverService = srv
 	s.AlertService.PushoverService = srv
