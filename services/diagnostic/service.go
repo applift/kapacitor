@@ -4,6 +4,7 @@ import (
 	"github.com/influxdata/kapacitor"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
+	"github.com/influxdata/kapacitor/services/config"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/httppost"
@@ -48,6 +49,7 @@ type Service interface {
 	NewKapacitorHandler() kapacitor.Diagnostic
 	NewAlertServiceHandler() alertservice.Diagnostic
 	NewUDFServiceHandler() udfservice.Diagnostic
+	NewConfigOverrideHandler() config.Diagnostic
 }
 
 type service struct {
@@ -185,5 +187,11 @@ func (s *service) NewMQTTHandler() mqtt.Diagnostic {
 func (s *service) NewTalkHandler() talk.Diagnostic {
 	return &TalkHandler{
 		l: s.logger.With(zap.String("service", "talk")),
+	}
+}
+
+func (s *service) NewConfigOverrideHandler() config.Diagnostic {
+	return &ConfigOverrideHandler{
+		l: s.logger.With(zap.String("service", "config-override")),
 	}
 }

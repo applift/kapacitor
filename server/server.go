@@ -311,8 +311,8 @@ func (s *Server) appendStorageService() {
 }
 
 func (s *Server) appendConfigOverrideService() {
-	l := s.LogService.NewLogger("[config-override] ", log.LstdFlags)
-	srv := config.NewService(s.config.ConfigOverride, s.config, l, s.configUpdates)
+	d := s.DiagService.NewConfigOverrideHandler()
+	srv := config.NewService(s.config.ConfigOverride, s.config, d, s.configUpdates)
 	srv.HTTPDService = s.HTTPDService
 	srv.StorageService = s.StorageService
 

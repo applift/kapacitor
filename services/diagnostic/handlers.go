@@ -778,6 +778,16 @@ func (h *TalkHandler) WithContext(ctx ...keyvalue.T) talk.Diagnostic {
 	}
 }
 
+// Config handler
+
+type ConfigOverrideHandler struct {
+	l *zap.Logger
+}
+
+func (h *ConfigOverrideHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
 // Template handler
 
 //type Handler struct {
