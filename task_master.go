@@ -113,7 +113,7 @@ type TaskMaster struct {
 		Handler(smtp.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	MQTTService interface {
-		Handler(mqtt.HandlerConfig, *log.Logger) alert.Handler
+		Handler(mqtt.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 
 	OpsGenieService interface {

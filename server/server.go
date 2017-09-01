@@ -482,8 +482,8 @@ func (s *Server) appendAuthService() {
 
 func (s *Server) appendMQTTService() error {
 	cs := s.config.MQTT
-	l := s.LogService.NewLogger("[mqtt] ", log.LstdFlags)
-	srv, err := mqtt.NewService(cs, l)
+	d := s.DiagService.NewMQTTHandler()
+	srv, err := mqtt.NewService(cs, d)
 	if err != nil {
 		return err
 	}

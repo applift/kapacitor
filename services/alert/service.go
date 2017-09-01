@@ -83,7 +83,7 @@ type Service struct {
 		Handler(hipchat.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	MQTTService interface {
-		Handler(mqtt.HandlerConfig, *log.Logger) alert.Handler
+		Handler(mqtt.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	OpsGenieService interface {
 		Handler(opsgenie.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -796,7 +796,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h = s.MQTTService.Handler(c, l)
+		h = s.MQTTService.Handler(c, ctx...)
 		h = newExternalHandler(h)
 	case "opsgenie":
 		c := opsgenie.HandlerConfig{}

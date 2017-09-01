@@ -13,6 +13,7 @@ import (
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httppost"
+	"github.com/influxdata/kapacitor/services/mqtt"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/pushover"
@@ -716,6 +717,41 @@ func (h *TelegramHandler) WithContext(ctx ...keyvalue.T) telegram.Diagnostic {
 	}
 
 	return &TelegramHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// MQTT handler
+
+type MQTTHandler struct {
+	l *zap.Logger
+}
+
+func (h *MQTTHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *MQTTHandler) CreatingAlertHandler(c mqtt.HandlerConfig) {
+	qos, _ := c.QoS.MarshalText()
+	h.l.Debug("creating mqtt handler",
+		zap.String("broker_name", c.BrokerName),
+		zap.String("topic", c.Topic),
+		zap.Bool("retained", c.Retained),
+		zap.String("qos", string(qos)),
+	)
+}
+
+func (h *MQTTHandler) HandlingEvent() {
+	h.l.Debug("handling event")
+}
+
+func (h *MQTTHandler) WithContext(ctx ...keyvalue.T) mqtt.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &MQTTHandler{
 		l: h.l.With(fields...),
 	}
 }

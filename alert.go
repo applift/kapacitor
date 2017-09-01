@@ -393,7 +393,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			QoS:        mqtt.QoSLevel(m.Qos),
 			Retained:   m.Retained,
 		}
-		h := et.tm.MQTTService.Handler(c, l)
+		h := et.tm.MQTTService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	// Parse level expressions

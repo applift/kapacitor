@@ -7,6 +7,7 @@ import (
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httpd"
 	"github.com/influxdata/kapacitor/services/httppost"
+	"github.com/influxdata/kapacitor/services/mqtt"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
 	"github.com/influxdata/kapacitor/services/pushover"
@@ -36,6 +37,7 @@ type Service interface {
 	NewSensuHandler() sensu.Diagnostic
 	NewTelegramHandler() telegram.Diagnostic
 	NewSNMPTrapHandler() snmptrap.Diagnostic
+	NewMQTTHandler() mqtt.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
 	NewTaskStoreHandler() task_store.Diagnostic
@@ -169,5 +171,11 @@ func (s *service) NewSNMPTrapHandler() snmptrap.Diagnostic {
 func (s *service) NewTelegramHandler() telegram.Diagnostic {
 	return &TelegramHandler{
 		l: s.logger.With(zap.String("service", "telegram")),
+	}
+}
+
+func (s *service) NewMQTTHandler() mqtt.Diagnostic {
+	return &MQTTHandler{
+		l: s.logger.With(zap.String("service", "mqtt")),
 	}
 }
