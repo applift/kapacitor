@@ -161,7 +161,7 @@ type TaskMaster struct {
 		Handler(sensu.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	TalkService interface {
-		Handler(*log.Logger) alert.Handler
+		Handler(...keyvalue.T) alert.Handler
 	}
 	TimingService interface {
 		NewTimer(timer.Setter) timer.Timer

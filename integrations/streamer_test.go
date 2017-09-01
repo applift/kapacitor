@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/mail"
@@ -8159,7 +8158,7 @@ stream
 		c.Enabled = true
 		c.URL = ts.URL
 		c.AuthorName = "Kapacitor"
-		sl := talk.NewService(c, logService.NewLogger("[test_talk] ", log.LstdFlags))
+		sl := talk.NewService(c, diagService.NewTalkHandler())
 		tm.TalkService = sl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)

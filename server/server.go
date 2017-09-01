@@ -635,8 +635,8 @@ func (s *Server) appendAlertaService() {
 
 func (s *Server) appendTalkService() {
 	c := s.config.Talk
-	l := s.LogService.NewLogger("[talk] ", log.LstdFlags)
-	srv := talk.NewService(c, l)
+	d := s.DiagService.NewTalkHandler()
+	srv := talk.NewService(c, d)
 
 	s.TaskMaster.TalkService = srv
 	s.AlertService.TalkService = srv

@@ -17,6 +17,7 @@ import (
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/snmptrap"
 	"github.com/influxdata/kapacitor/services/storage"
+	"github.com/influxdata/kapacitor/services/talk"
 	"github.com/influxdata/kapacitor/services/task_store"
 	"github.com/influxdata/kapacitor/services/telegram"
 	udfservice "github.com/influxdata/kapacitor/services/udf"
@@ -26,6 +27,7 @@ import (
 
 type Service interface {
 	NewVictorOpsHandler() victorops.Diagnostic
+	NewTalkHandler() talk.Diagnostic
 	NewSlackHandler() slack.Diagnostic
 	NewAlertaHandler() alerta.Diagnostic
 	NewHipChatHandler() hipchat.Diagnostic
@@ -177,5 +179,11 @@ func (s *service) NewTelegramHandler() telegram.Diagnostic {
 func (s *service) NewMQTTHandler() mqtt.Diagnostic {
 	return &MQTTHandler{
 		l: s.logger.With(zap.String("service", "mqtt")),
+	}
+}
+
+func (s *service) NewTalkHandler() talk.Diagnostic {
+	return &TalkHandler{
+		l: s.logger.With(zap.String("service", "talk")),
 	}
 }

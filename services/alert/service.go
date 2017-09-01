@@ -4,8 +4,6 @@ import (
 	"encoding"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"path"
 	"reflect"
 	"regexp"
@@ -110,7 +108,7 @@ type Service struct {
 		Handler(snmptrap.HandlerConfig, ...keyvalue.T) (alert.Handler, error)
 	}
 	TalkService interface {
-		Handler(*log.Logger) alert.Handler
+		Handler(...keyvalue.T) alert.Handler
 	}
 	TelegramService interface {
 		Handler(telegram.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -736,8 +734,6 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		keyvalue.KV("handler", spec.ID),
 		keyvalue.KV("topic", spec.Topic),
 	}
-	// TODO: remove me
-	l := log.New(os.Stdout, "REMOVE ME", log.LstdFlags)
 	handlerDiag := s.diag.WithHandlerContext(ctx...)
 	switch spec.Kind {
 	case "aggregate":
@@ -878,7 +874,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		}
 		h = newExternalHandler(h)
 	case "talk":
-		h = s.TalkService.Handler(l)
+		h = s.TalkService.Handler(ctx...)
 		h = newExternalHandler(h)
 	case "tcp":
 		c := TCPHandlerConfig{}

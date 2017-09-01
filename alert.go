@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	html "html/template"
-	"log"
 	"os"
 	"sync"
 	text "text/template"
@@ -77,10 +76,6 @@ type AlertNode struct {
 
 // Create a new  AlertNode which caches the most recent item and exposes it over the HTTP API.
 func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (an *AlertNode, err error) {
-	// TODO: get rid of this
-	l := log.New(os.Stdout, "GET RID OF ME", log.LstdFlags)
-	//ctx := d.Context()
-	// TODO: use the line above eventually
 	ctx := []keyvalue.T{
 		keyvalue.KV("task", et.Task.ID),
 	}
@@ -382,7 +377,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 	}
 
 	for range n.TalkHandlers {
-		h := et.tm.TalkService.Handler(l)
+		h := et.tm.TalkService.Handler(ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 

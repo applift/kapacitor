@@ -21,6 +21,7 @@ import (
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/snmptrap"
+	"github.com/influxdata/kapacitor/services/talk"
 	"github.com/influxdata/kapacitor/services/telegram"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
@@ -752,6 +753,27 @@ func (h *MQTTHandler) WithContext(ctx ...keyvalue.T) mqtt.Diagnostic {
 	}
 
 	return &MQTTHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// Talk handler
+
+type TalkHandler struct {
+	l *zap.Logger
+}
+
+func (h *TalkHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *TalkHandler) WithContext(ctx ...keyvalue.T) talk.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &TalkHandler{
 		l: h.l.With(fields...),
 	}
 }
