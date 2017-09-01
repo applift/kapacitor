@@ -247,7 +247,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 			DisableWebPagePreview: t.IsDisableWebPagePreview,
 			DisableNotification:   t.IsDisableNotification,
 		}
-		h := et.tm.TelegramService.Handler(c, l)
+		h := et.tm.TelegramService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 
@@ -273,7 +273,7 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 
 	if len(n.TelegramHandlers) == 0 && (et.tm.TelegramService != nil && et.tm.TelegramService.Global()) {
 		c := telegram.HandlerConfig{}
-		h := et.tm.TelegramService.Handler(c, l)
+		h := et.tm.TelegramService.Handler(c, ctx...)
 		an.handlers = append(an.handlers, h)
 	}
 	// If telegram has been configured with state changes only set it.

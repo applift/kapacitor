@@ -20,6 +20,7 @@ import (
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/snmptrap"
+	"github.com/influxdata/kapacitor/services/telegram"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -694,6 +695,27 @@ func (h *SNMPTrapHandler) WithContext(ctx ...keyvalue.T) snmptrap.Diagnostic {
 	}
 
 	return &SNMPTrapHandler{
+		l: h.l.With(fields...),
+	}
+}
+
+// Telegram handler
+
+type TelegramHandler struct {
+	l *zap.Logger
+}
+
+func (h *TelegramHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *TelegramHandler) WithContext(ctx ...keyvalue.T) telegram.Diagnostic {
+	fields := []zapcore.Field{}
+	for _, kv := range ctx {
+		fields = append(fields, zap.String(kv.Key, kv.Value))
+	}
+
+	return &TelegramHandler{
 		l: h.l.With(fields...),
 	}
 }

@@ -146,7 +146,7 @@ type TaskMaster struct {
 	TelegramService interface {
 		Global() bool
 		StateChangesOnly() bool
-		Handler(telegram.HandlerConfig, *log.Logger) alert.Handler
+		Handler(telegram.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	HipChatService interface {
 		Global() bool

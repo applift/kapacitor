@@ -113,7 +113,7 @@ type Service struct {
 		Handler(*log.Logger) alert.Handler
 	}
 	TelegramService interface {
-		Handler(telegram.HandlerConfig, *log.Logger) alert.Handler
+		Handler(telegram.HandlerConfig, ...keyvalue.T) alert.Handler
 	}
 	VictorOpsService interface {
 		Handler(victorops.HandlerConfig, ...keyvalue.T) alert.Handler
@@ -894,7 +894,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
-		h = s.TelegramService.Handler(c, l)
+		h = s.TelegramService.Handler(c, ctx...)
 		h = newExternalHandler(h)
 	case "victorops":
 		c := victorops.HandlerConfig{}

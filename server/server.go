@@ -599,8 +599,8 @@ func (s *Server) appendSNMPTrapService() {
 
 func (s *Server) appendTelegramService() {
 	c := s.config.Telegram
-	l := s.LogService.NewLogger("[telegram] ", log.LstdFlags)
-	srv := telegram.NewService(c, l)
+	d := s.DiagService.NewTelegramHandler()
+	srv := telegram.NewService(c, d)
 
 	s.TaskMaster.TelegramService = srv
 	s.AlertService.TelegramService = srv

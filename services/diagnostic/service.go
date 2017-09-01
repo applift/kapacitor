@@ -17,6 +17,7 @@ import (
 	"github.com/influxdata/kapacitor/services/snmptrap"
 	"github.com/influxdata/kapacitor/services/storage"
 	"github.com/influxdata/kapacitor/services/task_store"
+	"github.com/influxdata/kapacitor/services/telegram"
 	udfservice "github.com/influxdata/kapacitor/services/udf"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
@@ -33,6 +34,7 @@ type Service interface {
 	NewPushoverHandler() pushover.Diagnostic
 	NewHTTPPostHandler() httppost.Diagnostic
 	NewSensuHandler() sensu.Diagnostic
+	NewTelegramHandler() telegram.Diagnostic
 	NewSNMPTrapHandler() snmptrap.Diagnostic
 
 	NewStorageHandler() storage.Diagnostic
@@ -161,5 +163,11 @@ func (s *service) NewSensuHandler() sensu.Diagnostic {
 func (s *service) NewSNMPTrapHandler() snmptrap.Diagnostic {
 	return &SNMPTrapHandler{
 		l: s.logger.With(zap.String("service", "snmp")),
+	}
+}
+
+func (s *service) NewTelegramHandler() telegram.Diagnostic {
+	return &TelegramHandler{
+		l: s.logger.With(zap.String("service", "telegram")),
 	}
 }

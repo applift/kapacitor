@@ -7428,7 +7428,7 @@ stream
 		c.ChatId = "123456789"
 		c.DisableWebPagePreview = true
 		c.DisableNotification = false
-		tl := telegram.NewService(c, logService.NewLogger("[test_telegram] ", log.LstdFlags))
+		tl := telegram.NewService(c, diagService.NewTelegramHandler())
 		tm.TelegramService = tl
 	}
 	testStreamerNoOutput(t, "TestStream_Alert", script, 13*time.Second, tmInit)
