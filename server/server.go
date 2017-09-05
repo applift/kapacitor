@@ -438,8 +438,8 @@ func (s *Server) appendReplayService() {
 
 func (s *Server) appendK8sService() error {
 	c := s.config.Kubernetes
-	l := s.LogService.NewLogger("[kubernetes] ", log.LstdFlags)
-	srv, err := k8s.NewService(c, s.ScraperService, l)
+	d := s.DiagService.NewK8sHandler()
+	srv, err := k8s.NewService(c, s.ScraperService, d)
 	if err != nil {
 		return err
 	}

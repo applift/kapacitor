@@ -58,6 +58,7 @@ type Service interface {
 	// Without it you get an import cycle
 	NewServerHandler() *ServerHandler
 	NewReplayHandler() *ReplayHandler
+	NewK8sHandler() *K8sHandler
 }
 
 type service struct {
@@ -214,5 +215,11 @@ func (s *service) NewServerHandler() *ServerHandler {
 func (s *service) NewReplayHandler() *ReplayHandler {
 	return &ReplayHandler{
 		l: s.logger.With(zap.String("service", "replay")),
+	}
+}
+
+func (s *service) NewK8sHandler() *K8sHandler {
+	return &K8sHandler{
+		l: s.logger.With(zap.String("service", "kubernetes")),
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httppost"
+	"github.com/influxdata/kapacitor/services/k8s"
 	"github.com/influxdata/kapacitor/services/mqtt"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/pagerduty"
@@ -938,6 +939,18 @@ func (h *ReplayHandler) Debug(msg string, ctx ...keyvalue.T) {
 	}
 
 	h.l.Debug(msg, fields...)
+}
+
+// K8s handler
+
+type K8sHandler struct {
+	l *zap.Logger
+}
+
+func (h *K8sHandler) WithClusterContext(cluster string) k8s.Diagnostic {
+	return &K8sHandler{
+		l: h.l.With(zap.String("cluster_id", cluster)),
+	}
 }
 
 // Template handler
