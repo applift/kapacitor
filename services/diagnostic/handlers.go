@@ -9,6 +9,7 @@ import (
 
 	"github.com/influxdata/kapacitor"
 	"github.com/influxdata/kapacitor/alert"
+	"github.com/influxdata/kapacitor/edge"
 	"github.com/influxdata/kapacitor/keyvalue"
 	"github.com/influxdata/kapacitor/models"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
@@ -1245,6 +1246,19 @@ func (h *ScraperHandler) SetFormat(string) error {
 
 func (h *ScraperHandler) SetLevel(string) error {
 	return nil
+}
+
+// Edge Handler
+
+type EdgeHandler struct {
+	l *zap.Logger
+}
+
+func (h *EdgeHandler) Collect(mtype edge.MessageType) {
+	h.l.Debug("collected message", zap.Stringer("message_type", mtype))
+}
+func (h *EdgeHandler) Emit(mtype edge.MessageType) {
+	h.l.Debug("emitted message", zap.Stringer("message_type", mtype))
 }
 
 // Template handler
