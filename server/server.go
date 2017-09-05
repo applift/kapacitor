@@ -20,6 +20,7 @@ import (
 	"github.com/influxdata/kapacitor/auth"
 	"github.com/influxdata/kapacitor/command"
 	iclient "github.com/influxdata/kapacitor/influxdb"
+	"github.com/influxdata/kapacitor/keyvalue"
 	"github.com/influxdata/kapacitor/server/vars"
 	"github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
@@ -80,6 +81,13 @@ type BuildInfo struct {
 	Branch  string
 }
 
+// TODO: This interface okay?
+type Diagnostic interface {
+	Debug(msg string, ctx ...keyvalue.T)
+	Info(msg string, ctx ...keyvalue.T)
+	Error(msg string, err error, ctx ...keyvalue.T)
+}
+
 // Server represents a container for the metadata and storage data and services.
 // It is built using a Config and it manages the startup and shutdown of all
 // services in the proper order.
@@ -136,7 +144,7 @@ type Server struct {
 
 	LogService  logging.Interface
 	DiagService diagnostic.Service
-	Logger      *log.Logger
+	Diag        Diagnostic
 }
 
 // New returns a new instance of Server built from a config.
@@ -145,7 +153,7 @@ func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagServi
 	if err != nil {
 		return nil, fmt.Errorf("%s. To generate a valid configuration file run `kapacitord config > kapacitor.generated.conf`.", err)
 	}
-	l := logService.NewLogger("[srv] ", log.LstdFlags)
+	d := diagService.NewServerHandler()
 	s := &Server{
 		config:           c,
 		BuildInfo:        buildInfo,
@@ -157,13 +165,13 @@ func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagServi
 		DiagService:      diagService,
 		MetaClient:       &kapacitor.NoopMetaClient{},
 		QueryExecutor:    &Queryexecutor{},
-		Logger:           l,
+		Diag:             d,
 		ServicesByName:   make(map[string]int),
 		DynamicServices:  make(map[string]Updater),
 		Commander:        c.Commander,
 		clusterIDChanged: waiter.NewGroup(),
 	}
-	s.Logger.Println("I! Kapacitor hostname:", s.hostname)
+	s.Diag.Info("listing Kapacitor hostname", keyvalue.KV("hostname", s.hostname))
 
 	// Setup IDs
 	err = s.setupIDs()
@@ -177,12 +185,13 @@ func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagServi
 	vars.HostVar.Set(s.hostname)
 	vars.ProductVar.Set(vars.Product)
 	vars.VersionVar.Set(s.BuildInfo.Version)
-	s.Logger.Printf("I! ClusterID: %s ServerID: %s", s.ClusterID, s.ServerID)
+	s.Diag.Info("listing ClusterID and ServerID",
+		keyvalue.KV("cluster_id", s.ClusterID.String()), keyvalue.KV("server_id", s.ServerID.String()))
 
 	// Start Task Master
 	s.TaskMasterLookup = kapacitor.NewTaskMasterLookup()
-	d := diagService.NewKapacitorHandler()
-	s.TaskMaster = kapacitor.NewTaskMaster(kapacitor.MainTaskMaster, vars.Info, d)
+	kd := diagService.NewKapacitorHandler()
+	s.TaskMaster = kapacitor.NewTaskMaster(kapacitor.MainTaskMaster, vars.Info, kd)
 	s.TaskMaster.DefaultRetentionPolicy = c.DefaultRetentionPolicy
 	s.TaskMaster.Commander = s.Commander
 	s.TaskMasterLookup.Set(s.TaskMaster)
@@ -852,16 +861,16 @@ func (s *Server) Open() error {
 
 func (s *Server) startServices() error {
 	for _, service := range s.Services {
-		s.Logger.Printf("D! opening service: %T", service)
+		s.Diag.Debug("opening service", keyvalue.KV("service", fmt.Sprintf("%T", service)))
 		if err := service.Open(); err != nil {
 			return fmt.Errorf("open service %T: %s", service, err)
 		}
-		s.Logger.Printf("D! opened service: %T", service)
+		s.Diag.Debug("opened service", keyvalue.KV("service", fmt.Sprintf("%T", service)))
 
 		// Apply config overrides after the config override service has been opened and before any dynamic services.
 		if service == s.ConfigOverrideService && !s.config.SkipConfigOverrides && s.config.ConfigOverride.Enabled {
 			// Apply initial config updates
-			s.Logger.Println("D! applying configuration overrides")
+			s.Diag.Debug("applying config overrides")
 			configs, err := s.ConfigOverrideService.Config()
 			if err != nil {
 				return errors.Wrap(err, "failed to apply config overrides")
@@ -870,7 +879,7 @@ func (s *Server) startServices() error {
 				if srv, ok := s.DynamicServices[service]; !ok {
 					return fmt.Errorf("found configuration override for unknown service %q", service)
 				} else {
-					s.Logger.Println("D! applying configuration overrides for", service)
+					s.Diag.Debug("applying config overrides for service", keyvalue.KV("service", service))
 					if err := srv.Update(config); err != nil {
 						return errors.Wrapf(err, "failed to update configuration for service %s", service)
 					}
@@ -907,11 +916,11 @@ func (s *Server) Close() error {
 
 	// Close all services that write points first.
 	if err := s.HTTPDService.Close(); err != nil {
-		s.Logger.Printf("E! error closing httpd service: %v", err)
+		s.Diag.Error("error closing httpd service", err)
 	}
 	if s.StatsService != nil {
 		if err := s.StatsService.Close(); err != nil {
-			s.Logger.Printf("E! error closing stats service: %v", err)
+			s.Diag.Error("error closing stats service", err)
 		}
 	}
 
@@ -922,12 +931,12 @@ func (s *Server) Close() error {
 	// Close services now that all tasks are stopped.
 	for i := len(s.Services) - 1; i >= 0; i-- {
 		service := s.Services[i]
-		s.Logger.Printf("D! closing service: %T", service)
+		s.Diag.Debug("closing service", keyvalue.KV("service", fmt.Sprintf("%T", service)))
 		err := service.Close()
 		if err != nil {
-			s.Logger.Printf("E! error closing service %T: %v", service, err)
+			s.Diag.Error("error closing service", err, keyvalue.KV("service", fmt.Sprintf("%T", service)))
 		}
-		s.Logger.Printf("D! closed service: %T", service)
+		s.Diag.Debug("closed service", keyvalue.KV("service", fmt.Sprintf("%T", service)))
 	}
 
 	// Finally close the task master
@@ -1046,7 +1055,7 @@ func (s *Server) startProfile(cpuprofile, memprofile string) error {
 		if err != nil {
 			return fmt.Errorf("E! cpuprofile: %v", err)
 		}
-		s.Logger.Printf("I! writing CPU profile to: %s\n", cpuprofile)
+		s.Diag.Info("writing CPU profile", keyvalue.KV("file", cpuprofile))
 		prof.cpu = f
 		if err := pprof.StartCPUProfile(prof.cpu); err != nil {
 			return fmt.Errorf("#! start cpu profile: %v", err)
@@ -1058,7 +1067,7 @@ func (s *Server) startProfile(cpuprofile, memprofile string) error {
 		if err != nil {
 			return fmt.Errorf("E! memprofile: %v", err)
 		}
-		s.Logger.Printf("I! writing mem profile to: %s\n", memprofile)
+		s.Diag.Info("writing mem profile", keyvalue.KV("file", memprofile))
 		prof.mem = f
 		runtime.MemProfileRate = 4096
 	}
@@ -1070,14 +1079,14 @@ func (s *Server) stopProfile() {
 	if prof.cpu != nil {
 		pprof.StopCPUProfile()
 		prof.cpu.Close()
-		s.Logger.Println("I! CPU profile stopped")
+		s.Diag.Info("CPU profile stopped")
 	}
 	if prof.mem != nil {
 		if err := pprof.Lookup("heap").WriteTo(prof.mem, 0); err != nil {
-			s.Logger.Printf("I! failed to write mem profile: %v\n", err)
+			s.Diag.Error("failed to write mem profile", err)
 		}
 		prof.mem.Close()
-		s.Logger.Println("I! mem profile stopped")
+		s.Diag.Info("mem profile stopped")
 	}
 }
 

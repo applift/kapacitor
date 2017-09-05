@@ -788,6 +788,96 @@ func (h *ConfigOverrideHandler) Error(msg string, err error) {
 	h.l.Error(msg, zap.Error(err))
 }
 
+type ServerHandler struct {
+	l *zap.Logger
+}
+
+func (h *ServerHandler) Error(msg string, err error, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Error(msg, zap.Error(err))
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	// This isn't great wrt to allocation, but should not ever actually occur
+	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
+	fields[0] = zap.Error(err)
+	for i := 1; i < len(fields); i++ {
+		kv := ctx[i-1]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Error(msg, fields...)
+}
+
+func (h *ServerHandler) Info(msg string, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Info(msg)
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Info(msg, zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Info(msg, zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	fields := make([]zapcore.Field, len(ctx))
+	for i := 0; i < len(fields); i++ {
+		kv := ctx[i]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Info(msg, fields...)
+}
+
+func (h *ServerHandler) Debug(msg string, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Debug(msg)
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Debug(msg, zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Debug(msg, zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	fields := make([]zapcore.Field, len(ctx))
+	for i := 0; i < len(fields); i++ {
+		kv := ctx[i]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Debug(msg, fields...)
+}
+
 // Template handler
 
 //type Handler struct {

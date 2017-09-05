@@ -2,6 +2,7 @@ package diagnostic
 
 import (
 	"github.com/influxdata/kapacitor"
+	//"github.com/influxdata/kapacitor/server"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/config"
@@ -26,6 +27,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// TODO:
+// maybe just make this a struct not an interface
 type Service interface {
 	NewVictorOpsHandler() victorops.Diagnostic
 	NewTalkHandler() talk.Diagnostic
@@ -50,6 +53,9 @@ type Service interface {
 	NewAlertServiceHandler() alertservice.Diagnostic
 	NewUDFServiceHandler() udfservice.Diagnostic
 	NewConfigOverrideHandler() config.Diagnostic
+
+	// Without it you get an import cycle
+	NewServerHandler() *ServerHandler
 }
 
 type service struct {
@@ -193,5 +199,12 @@ func (s *service) NewTalkHandler() talk.Diagnostic {
 func (s *service) NewConfigOverrideHandler() config.Diagnostic {
 	return &ConfigOverrideHandler{
 		l: s.logger.With(zap.String("service", "config-override")),
+	}
+}
+
+func (s *service) NewServerHandler() *ServerHandler {
+	return &ServerHandler{
+		// TODO: what to make key here
+		l: s.logger.With(zap.String("source", "srv")),
 	}
 }
