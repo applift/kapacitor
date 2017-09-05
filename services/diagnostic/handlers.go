@@ -13,6 +13,7 @@ import (
 	"github.com/influxdata/kapacitor/services/alerta"
 	"github.com/influxdata/kapacitor/services/hipchat"
 	"github.com/influxdata/kapacitor/services/httppost"
+	"github.com/influxdata/kapacitor/services/influxdb"
 	"github.com/influxdata/kapacitor/services/k8s"
 	"github.com/influxdata/kapacitor/services/mqtt"
 	"github.com/influxdata/kapacitor/services/opsgenie"
@@ -25,6 +26,7 @@ import (
 	"github.com/influxdata/kapacitor/services/swarm"
 	"github.com/influxdata/kapacitor/services/talk"
 	"github.com/influxdata/kapacitor/services/telegram"
+	"github.com/influxdata/kapacitor/services/udp"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -1042,6 +1044,71 @@ func (h *UDPHandler) StartedListening(addr string) {
 
 func (h *UDPHandler) ClosedService() {
 	h.l.Info("closed service")
+}
+
+// InfluxDB handler
+
+type InfluxDBHandler struct {
+	l *zap.Logger
+}
+
+func (h *InfluxDBHandler) Error(msg string, err error, ctx ...keyvalue.T) {
+	if len(ctx) == 0 {
+		h.l.Error(msg, zap.Error(err))
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	// This isn't great wrt to allocation, but should not ever actually occur
+	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
+	fields[0] = zap.Error(err)
+	for i := 1; i < len(fields); i++ {
+		kv := ctx[i-1]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	h.l.Error(msg, fields...)
+}
+
+func (h *InfluxDBHandler) WithClusterContext(id string) influxdb.Diagnostic {
+	return &InfluxDBHandler{
+		l: h.l.With(zap.String("cluster", id)),
+	}
+}
+
+func (h *InfluxDBHandler) WithUDPContext(id string) udp.Diagnostic {
+	return &UDPHandler{
+		// TODO: okay?
+		l: h.l.With(zap.String("id", id)),
+	}
+}
+
+func (h *InfluxDBHandler) InsecureSkipVerify(urls []string) {
+	h.l.Warn("using InsecureSkipVerify when connecting to InfluxDB; this is insecure", zap.Strings("urls", urls))
+}
+
+func (h *InfluxDBHandler) UnlinkingSubscriptions(cluster string) {
+	h.l.Debug("unlinking subscription for cluster", zap.String("cluster", cluster))
+}
+
+func (h *InfluxDBHandler) LinkingSubscriptions(cluster string) {
+	h.l.Debug("linking subscription for cluster", zap.String("cluster", cluster))
+}
+
+func (h *InfluxDBHandler) StartedUDPListener(dbrp string) {
+	h.l.Info("started UDP listener", zap.String("dbrp", dbrp))
 }
 
 // Template handler

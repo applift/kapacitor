@@ -367,12 +367,12 @@ func (s *Server) appendSMTPService() {
 
 func (s *Server) appendInfluxDBService() error {
 	c := s.config.InfluxDB
-	l := s.LogService.NewLogger("[influxdb] ", log.LstdFlags)
+	d := s.DiagService.NewInfluxDBHandler()
 	httpPort, err := s.config.HTTP.Port()
 	if err != nil {
 		return errors.Wrap(err, "failed to get http port")
 	}
-	srv, err := influxdb.NewService(c, httpPort, s.config.Hostname, vars.Info, s.config.HTTP.AuthEnabled, l)
+	srv, err := influxdb.NewService(c, httpPort, s.config.Hostname, vars.Info, s.config.HTTP.AuthEnabled, d)
 	if err != nil {
 		return err
 	}
@@ -384,7 +384,6 @@ func (s *Server) appendInfluxDBService() error {
 
 	srv.HTTPDService = s.HTTPDService
 	srv.PointsWriter = s.TaskMaster
-	srv.LogService = s.LogService
 	srv.AuthService = s.AuthService
 	srv.ClientCreator = iclient.ClientCreator{}
 

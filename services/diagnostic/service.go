@@ -64,6 +64,7 @@ type Service interface {
 	NewNoAuthHandler() *NoAuthHandler
 	NewStatsHandler() *StatsHandler
 	NewUDPHandler() *UDPHandler
+	NewInfluxDBHandler() *InfluxDBHandler
 }
 
 type service struct {
@@ -256,5 +257,11 @@ func (s *service) NewStatsHandler() *StatsHandler {
 func (s *service) NewUDPHandler() *UDPHandler {
 	return &UDPHandler{
 		l: s.logger.With(zap.String("service", "udp")),
+	}
+}
+
+func (s *service) NewInfluxDBHandler() *InfluxDBHandler {
+	return &InfluxDBHandler{
+		l: s.logger.With(zap.String("service", "influxdb")),
 	}
 }
