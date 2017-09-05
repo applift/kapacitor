@@ -966,6 +966,16 @@ func (h *SwarmHandler) WithClusterContext(cluster string) swarm.Diagnostic {
 	}
 }
 
+// Deadman handler
+
+type DeadmanHandler struct {
+	l *zap.Logger
+}
+
+func (h *DeadmanHandler) ConfiguredGlobally() {
+	h.l.Info("Deadman's switch is configured globally")
+}
+
 // Template handler
 
 //type Handler struct {

@@ -464,8 +464,8 @@ func (s *Server) appendSwarmService() error {
 }
 
 func (s *Server) appendDeadmanService() {
-	l := s.LogService.NewLogger("[deadman] ", log.LstdFlags)
-	srv := deadman.NewService(s.config.Deadman, l)
+	d := s.DiagService.NewDeadmanHandler()
+	srv := deadman.NewService(s.config.Deadman, d)
 
 	s.TaskMaster.DeadmanService = srv
 	s.AppendService("deadman", srv)

@@ -60,6 +60,7 @@ type Service interface {
 	NewReplayHandler() *ReplayHandler
 	NewK8sHandler() *K8sHandler
 	NewSwarmHandler() *SwarmHandler
+	NewDeadmanHandler() *DeadmanHandler
 }
 
 type service struct {
@@ -228,5 +229,11 @@ func (s *service) NewK8sHandler() *K8sHandler {
 func (s *service) NewSwarmHandler() *SwarmHandler {
 	return &SwarmHandler{
 		l: s.logger.With(zap.String("service", "swarm")),
+	}
+}
+
+func (s *service) NewDeadmanHandler() *DeadmanHandler {
+	return &DeadmanHandler{
+		l: s.logger.With(zap.String("service", "deadman")),
 	}
 }
