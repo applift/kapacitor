@@ -22,6 +22,7 @@ import (
 	"github.com/influxdata/kapacitor/services/slack"
 	"github.com/influxdata/kapacitor/services/smtp"
 	"github.com/influxdata/kapacitor/services/snmptrap"
+	"github.com/influxdata/kapacitor/services/swarm"
 	"github.com/influxdata/kapacitor/services/talk"
 	"github.com/influxdata/kapacitor/services/telegram"
 	"github.com/influxdata/kapacitor/services/victorops"
@@ -949,6 +950,18 @@ type K8sHandler struct {
 
 func (h *K8sHandler) WithClusterContext(cluster string) k8s.Diagnostic {
 	return &K8sHandler{
+		l: h.l.With(zap.String("cluster_id", cluster)),
+	}
+}
+
+// Swarm handler
+
+type SwarmHandler struct {
+	l *zap.Logger
+}
+
+func (h *SwarmHandler) WithClusterContext(cluster string) swarm.Diagnostic {
+	return &SwarmHandler{
 		l: h.l.With(zap.String("cluster_id", cluster)),
 	}
 }

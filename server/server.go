@@ -451,8 +451,8 @@ func (s *Server) appendK8sService() error {
 }
 func (s *Server) appendSwarmService() error {
 	c := s.config.Swarm
-	l := s.LogService.NewLogger("[swarm] ", log.LstdFlags)
-	srv, err := swarm.NewService(c, l)
+	d := s.DiagService.NewSwarmHandler()
+	srv, err := swarm.NewService(c, d)
 	if err != nil {
 		return err
 	}

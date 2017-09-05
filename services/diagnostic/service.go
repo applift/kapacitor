@@ -59,6 +59,7 @@ type Service interface {
 	NewServerHandler() *ServerHandler
 	NewReplayHandler() *ReplayHandler
 	NewK8sHandler() *K8sHandler
+	NewSwarmHandler() *SwarmHandler
 }
 
 type service struct {
@@ -221,5 +222,11 @@ func (s *service) NewReplayHandler() *ReplayHandler {
 func (s *service) NewK8sHandler() *K8sHandler {
 	return &K8sHandler{
 		l: s.logger.With(zap.String("service", "kubernetes")),
+	}
+}
+
+func (s *service) NewSwarmHandler() *SwarmHandler {
+	return &SwarmHandler{
+		l: s.logger.With(zap.String("service", "swarm")),
 	}
 }
