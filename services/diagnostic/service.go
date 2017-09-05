@@ -61,6 +61,7 @@ type Service interface {
 	NewK8sHandler() *K8sHandler
 	NewSwarmHandler() *SwarmHandler
 	NewDeadmanHandler() *DeadmanHandler
+	NewNoAuthHandler() *NoAuthHandler
 }
 
 type service struct {
@@ -235,5 +236,11 @@ func (s *service) NewSwarmHandler() *SwarmHandler {
 func (s *service) NewDeadmanHandler() *DeadmanHandler {
 	return &DeadmanHandler{
 		l: s.logger.With(zap.String("service", "deadman")),
+	}
+}
+
+func (s *service) NewNoAuthHandler() *NoAuthHandler {
+	return &NoAuthHandler{
+		l: s.logger.With(zap.String("service", "noauth")),
 	}
 }

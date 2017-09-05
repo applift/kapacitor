@@ -480,8 +480,8 @@ func (s *Server) appendUDFService() {
 }
 
 func (s *Server) appendAuthService() {
-	l := s.LogService.NewLogger("[noauth] ", log.LstdFlags)
-	srv := noauth.NewService(l)
+	d := s.DiagService.NewNoAuthHandler()
+	srv := noauth.NewService(d)
 
 	s.AuthService = srv
 	s.HTTPDService.Handler.AuthService = srv

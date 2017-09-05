@@ -976,6 +976,20 @@ func (h *DeadmanHandler) ConfiguredGlobally() {
 	h.l.Info("Deadman's switch is configured globally")
 }
 
+// NoAuth handler
+
+type NoAuthHandler struct {
+	l *zap.Logger
+}
+
+func (h *NoAuthHandler) FakedUserAuthentication(username string) {
+	h.l.Warn("using noauth auth backend. Faked Authentication for user", zap.String("user", username))
+}
+
+func (h *NoAuthHandler) FakedSubscriptionUserToken() {
+	h.l.Warn("using noauth auth backend. Faked authentication for subscription user token")
+}
+
 // Template handler
 
 //type Handler struct {
