@@ -719,8 +719,8 @@ func (s *Server) appendUDPServices() {
 func (s *Server) appendStatsService() {
 	c := s.config.Stats
 	if c.Enabled {
-		l := s.LogService.NewLogger("[stats] ", log.LstdFlags)
-		srv := stats.NewService(c, l)
+		d := s.DiagService.NewStatsHandler()
+		srv := stats.NewService(c, d)
 		srv.TaskMaster = s.TaskMaster
 
 		s.StatsService = srv

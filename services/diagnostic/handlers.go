@@ -990,6 +990,16 @@ func (h *NoAuthHandler) FakedSubscriptionUserToken() {
 	h.l.Warn("using noauth auth backend. Faked authentication for subscription user token")
 }
 
+// Stats handler
+
+type StatsHandler struct {
+	l *zap.Logger
+}
+
+func (h *StatsHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
 // Template handler
 
 //type Handler struct {
