@@ -1,8 +1,10 @@
 package diagnostic
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/influxdata/kapacitor"
@@ -28,6 +30,7 @@ import (
 	"github.com/influxdata/kapacitor/services/telegram"
 	"github.com/influxdata/kapacitor/services/udp"
 	"github.com/influxdata/kapacitor/services/victorops"
+	plog "github.com/prometheus/common/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -1109,6 +1112,139 @@ func (h *InfluxDBHandler) LinkingSubscriptions(cluster string) {
 
 func (h *InfluxDBHandler) StartedUDPListener(dbrp string) {
 	h.l.Info("started UDP listener", zap.String("dbrp", dbrp))
+}
+
+// Scraper handler
+
+type ScraperHandler struct {
+	mu  sync.Mutex
+	buf *bytes.Buffer
+	l   *zap.Logger
+}
+
+func (h *ScraperHandler) Debug(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprint(h.buf, ctx...)
+
+	h.l.Debug(h.buf.String())
+}
+
+func (h *ScraperHandler) Debugln(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprintln(h.buf, ctx...)
+
+	h.l.Debug(h.buf.String())
+}
+
+func (h *ScraperHandler) Debugf(s string, ctx ...interface{}) {
+	h.l.Debug(fmt.Sprintf(s, ctx...))
+}
+
+func (h *ScraperHandler) Info(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprint(h.buf, ctx...)
+
+	h.l.Info(h.buf.String())
+}
+
+func (h *ScraperHandler) Infoln(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprintln(h.buf, ctx...)
+
+	h.l.Info(h.buf.String())
+}
+
+func (h *ScraperHandler) Infof(s string, ctx ...interface{}) {
+	h.l.Debug(fmt.Sprintf(s, ctx...))
+}
+
+func (h *ScraperHandler) Warn(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprint(h.buf, ctx...)
+
+	h.l.Warn(h.buf.String())
+}
+
+func (h *ScraperHandler) Warnln(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprintln(h.buf, ctx...)
+
+	h.l.Warn(h.buf.String())
+}
+
+func (h *ScraperHandler) Warnf(s string, ctx ...interface{}) {
+	h.l.Warn(fmt.Sprintf(s, ctx...))
+}
+
+func (h *ScraperHandler) Error(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprint(h.buf, ctx...)
+
+	h.l.Error(h.buf.String())
+}
+
+func (h *ScraperHandler) Errorln(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprintln(h.buf, ctx...)
+
+	h.l.Error(h.buf.String())
+}
+
+func (h *ScraperHandler) Errorf(s string, ctx ...interface{}) {
+	h.l.Error(fmt.Sprintf(s, ctx...))
+}
+
+func (h *ScraperHandler) Fatal(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprint(h.buf, ctx...)
+
+	h.l.Fatal(h.buf.String())
+}
+
+func (h *ScraperHandler) Fatalln(ctx ...interface{}) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	defer h.buf.Reset()
+	fmt.Fprintln(h.buf, ctx...)
+
+	h.l.Fatal(h.buf.String())
+}
+
+func (h *ScraperHandler) Fatalf(s string, ctx ...interface{}) {
+	h.l.Fatal(fmt.Sprintf(s, ctx...))
+}
+
+// TODO: actually implement
+func (h *ScraperHandler) With(key string, value interface{}) plog.Logger {
+	return &ScraperHandler{
+		l: h.l,
+	}
+}
+
+func (h *ScraperHandler) SetFormat(string) error {
+	return nil
+}
+
+func (h *ScraperHandler) SetLevel(string) error {
+	return nil
 }
 
 // Template handler

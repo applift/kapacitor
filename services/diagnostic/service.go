@@ -1,6 +1,8 @@
 package diagnostic
 
 import (
+	"bytes"
+
 	"github.com/influxdata/kapacitor"
 	//"github.com/influxdata/kapacitor/server"
 	alertservice "github.com/influxdata/kapacitor/services/alert"
@@ -65,6 +67,19 @@ type Service interface {
 	NewStatsHandler() *StatsHandler
 	NewUDPHandler() *UDPHandler
 	NewInfluxDBHandler() *InfluxDBHandler
+
+	NewScraperHandler() *ScraperHandler
+	NewAzureHandler() *ScraperHandler
+	NewConsulHandler() *ScraperHandler
+	NewDNSHandler() *ScraperHandler
+	NewEC2Handler() *ScraperHandler
+	NewFileDiscoveryHandler() *ScraperHandler
+	NewGCEHandler() *ScraperHandler
+	NewMarathonHandler() *ScraperHandler
+	NewNerveHandler() *ScraperHandler
+	NewServersetHandler() *ScraperHandler
+	NewStaticDiscoveryHandler() *ScraperHandler
+	NewTritonHandler() *ScraperHandler
 }
 
 type service struct {
@@ -263,5 +278,89 @@ func (s *service) NewUDPHandler() *UDPHandler {
 func (s *service) NewInfluxDBHandler() *InfluxDBHandler {
 	return &InfluxDBHandler{
 		l: s.logger.With(zap.String("service", "influxdb")),
+	}
+}
+
+func (s *service) NewScraperHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "scraper")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewAzureHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "azure")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewConsulHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "consul")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewDNSHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "dns")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewEC2Handler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "ec2")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewFileDiscoveryHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "file-discovery")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewGCEHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "gce")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewMarathonHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "marathon")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewNerveHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "nerve")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewServersetHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "serverset")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewStaticDiscoveryHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "static-discovery")),
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func (s *service) NewTritonHandler() *ScraperHandler {
+	return &ScraperHandler{
+		l:   s.logger.With(zap.String("service", "triton")),
+		buf: bytes.NewBuffer(nil),
 	}
 }
