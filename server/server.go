@@ -423,8 +423,8 @@ func (s *Server) appendTaskStoreService() {
 }
 
 func (s *Server) appendReplayService() {
-	l := s.LogService.NewLogger("[replay] ", log.LstdFlags)
-	srv := replay.NewService(s.config.Replay, l)
+	d := s.DiagService.NewReplayHandler()
+	srv := replay.NewService(s.config.Replay, d)
 	srv.StorageService = s.StorageService
 	srv.TaskStore = s.TaskStore
 	srv.HTTPDService = s.HTTPDService

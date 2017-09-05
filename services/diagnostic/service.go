@@ -54,8 +54,10 @@ type Service interface {
 	NewUDFServiceHandler() udfservice.Diagnostic
 	NewConfigOverrideHandler() config.Diagnostic
 
+	// TODO: figure this out
 	// Without it you get an import cycle
 	NewServerHandler() *ServerHandler
+	NewReplayHandler() *ReplayHandler
 }
 
 type service struct {
@@ -206,5 +208,11 @@ func (s *service) NewServerHandler() *ServerHandler {
 	return &ServerHandler{
 		// TODO: what to make key here
 		l: s.logger.With(zap.String("source", "srv")),
+	}
+}
+
+func (s *service) NewReplayHandler() *ReplayHandler {
+	return &ReplayHandler{
+		l: s.logger.With(zap.String("service", "replay")),
 	}
 }
