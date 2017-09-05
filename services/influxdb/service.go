@@ -1225,8 +1225,9 @@ func (c *influxdbCluster) startUDPListener(se subEntry, port string) (*net.UDPAd
 	conf.Buffer = c.udpBuffer
 	conf.ReadBuffer = c.udpReadBuffer
 
-	l := c.LogService.NewLogger(fmt.Sprintf("[udp:%s.%s] ", se.db, se.rp), log.LstdFlags)
-	service := udp.NewService(conf, l)
+	//l := c.LogService.NewLogger(fmt.Sprintf("[udp:%s.%s] ", se.db, se.rp), log.LstdFlags)
+	// TODO: fix this to use real UDP
+	service := udp.NewService(conf, nil)
 	service.PointsWriter = c.PointsWriter
 	err := service.Open()
 	if err != nil {

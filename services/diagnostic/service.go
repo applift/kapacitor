@@ -63,6 +63,7 @@ type Service interface {
 	NewDeadmanHandler() *DeadmanHandler
 	NewNoAuthHandler() *NoAuthHandler
 	NewStatsHandler() *StatsHandler
+	NewUDPHandler() *UDPHandler
 }
 
 type service struct {
@@ -249,5 +250,11 @@ func (s *service) NewNoAuthHandler() *NoAuthHandler {
 func (s *service) NewStatsHandler() *StatsHandler {
 	return &StatsHandler{
 		l: s.logger.With(zap.String("service", "stats")),
+	}
+}
+
+func (s *service) NewUDPHandler() *UDPHandler {
+	return &UDPHandler{
+		l: s.logger.With(zap.String("service", "udp")),
 	}
 }

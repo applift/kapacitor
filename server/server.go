@@ -709,8 +709,8 @@ func (s *Server) appendUDPServices() {
 		if !c.Enabled {
 			continue
 		}
-		l := s.LogService.NewLogger("[udp] ", log.LstdFlags)
-		srv := udp.NewService(c, l)
+		d := s.DiagService.NewUDPHandler()
+		srv := udp.NewService(c, d)
 		srv.PointsWriter = s.TaskMaster
 		s.AppendService(fmt.Sprintf("udp%d", i), srv)
 	}
