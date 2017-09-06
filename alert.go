@@ -130,7 +130,6 @@ func newAlertNode(et *ExecutingTask, n *pipeline.AlertNode, d NodeDiagnostic) (a
 		c := alertservice.TCPHandlerConfig{
 			Address: tcp.Address,
 		}
-		// TODO: this okay?
 		h := alertservice.NewTCPHandler(c, an.diag)
 		an.handlers = append(an.handlers, h)
 	}

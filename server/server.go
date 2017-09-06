@@ -79,7 +79,6 @@ type BuildInfo struct {
 	Branch  string
 }
 
-// TODO: This interface okay?
 type Diagnostic interface {
 	Debug(msg string, ctx ...keyvalue.T)
 	Info(msg string, ctx ...keyvalue.T)
@@ -656,7 +655,6 @@ func (s *Server) appendCollectdService() error {
 		return nil
 	}
 	srv := collectd.NewService(c)
-	//TODO: this function signature OK?
 	w, err := s.DiagService.NewStaticLevelHandler("info", "collectd")
 	if err != nil {
 		return fmt.Errorf("failed to create static level handler for collectd: %v", err)

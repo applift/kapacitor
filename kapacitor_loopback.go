@@ -77,7 +77,7 @@ func (n *KapacitorLoopbackNode) Point(p edge.PointMessage) error {
 
 	if err != nil {
 		n.incrementErrorCount()
-		n.diag.LoopbackWriteFailed()
+		n.diag.Error("failed to write point over loopback", err)
 
 	} else {
 		n.pointsWritten.Add(1)
@@ -114,7 +114,7 @@ func (n *KapacitorLoopbackNode) BatchPoint(bp edge.BatchPointMessage) error {
 
 	if err != nil {
 		n.incrementErrorCount()
-		n.diag.LoopbackWriteFailed()
+		n.diag.Error("failed to write point over loopback", err)
 	} else {
 		n.pointsWritten.Add(1)
 	}

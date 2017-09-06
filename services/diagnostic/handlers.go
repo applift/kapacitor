@@ -231,22 +231,6 @@ func (h *KapacitorHandler) StartingBatchQuery(q string) {
 	h.l.Debug("starting next batch query", zap.String("query", q))
 }
 
-func (h *KapacitorHandler) CannotPerformDerivative(reason string) {
-	h.l.Error("cannot perform derivative", zap.String("reason", reason))
-}
-
-func (h *KapacitorHandler) MissingTagForFlattenOp(tag string) {
-	h.l.Error("point missing tag for flatten operation", zap.String("tag", tag))
-}
-
-func (h *KapacitorHandler) IndexOutOfRangeForRow(idx int) {
-	h.l.Error("index out of range for row update", zap.Int("index", idx))
-}
-
-func (h *KapacitorHandler) LoopbackWriteFailed() {
-	h.l.Error("failed to write point over loopback")
-}
-
 func (h *KapacitorHandler) LogData(level string, prefix, data string) {
 	switch level {
 	case "info":
@@ -357,8 +341,7 @@ func (h *HTTPDHandler) HTTP(
 	reqID string,
 	duration time.Duration,
 ) {
-	// TODO: what is the message?
-	h.l.Info("???",
+	h.l.Info("http request",
 		zap.String("host", host),
 		zap.String("username", username),
 		zap.Time("start", start),

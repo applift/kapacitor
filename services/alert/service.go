@@ -129,8 +129,7 @@ func NewService(d Diagnostic) *Service {
 		Registrar: s,
 		Topics:    s,
 		Persister: s,
-		// TODO: WithAPIServerContext ??
-		diag: d,
+		diag:      d,
 	}
 	s.EventCollector = s
 	return s

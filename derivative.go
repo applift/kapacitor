@@ -1,6 +1,7 @@
 package kapacitor
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -125,8 +126,7 @@ func (n *DerivativeNode) derivative(prev, curr models.Fields, prevTime, currTime
 	f1, ok := numToFloat(curr[n.d.Field])
 	if !ok {
 		n.incrementErrorCount()
-		// TODO: idk about this
-		n.diag.CannotPerformDerivative(fmt.Sprintf("wrong type %T", curr[n.d.Field]))
+		n.diag.Error("cannot perform derivative", fmt.Errorf("field %s is the wrong %T", n.d.Field, curr[n.d.Field]))
 		return 0, false, false
 	}
 
@@ -141,8 +141,7 @@ func (n *DerivativeNode) derivative(prev, curr models.Fields, prevTime, currTime
 	elapsed := float64(currTime.Sub(prevTime))
 	if elapsed == 0 {
 		n.incrementErrorCount()
-		// TODO: idk about this
-		n.diag.CannotPerformDerivative("elaspsed time was 0")
+		n.diag.Error("cannot perform derivative", errors.New("elaspsed time was 0"))
 		return 0, true, false
 	}
 	diff := f1 - f0

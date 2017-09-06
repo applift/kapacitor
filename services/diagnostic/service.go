@@ -3,6 +3,7 @@ package diagnostic
 import (
 	"bytes"
 	"errors"
+	"os"
 
 	"github.com/influxdata/kapacitor"
 	//"github.com/influxdata/kapacitor/server"
@@ -28,6 +29,7 @@ import (
 	udfservice "github.com/influxdata/kapacitor/services/udf"
 	"github.com/influxdata/kapacitor/services/victorops"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Service struct {
@@ -35,8 +37,15 @@ type Service struct {
 }
 
 func NewService() *Service {
-	// TODO: change it
-	l := zap.NewExample()
+	p := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return true
+	})
+	out := zapcore.AddSync(os.Stdout)
+	consoleEnc := zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
+	core := zapcore.NewTee(
+		zapcore.NewCore(consoleEnc, out, p),
+	)
+	l := zap.New(core)
 	return &Service{
 		logger: l,
 	}

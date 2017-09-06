@@ -19,15 +19,11 @@ type Topics struct {
 	mu sync.RWMutex
 
 	topics map[string]*Topic
-
-	// TODO: revist
-	//logger *log.Logger
 }
 
 func NewTopics() *Topics {
 	s := &Topics{
 		topics: make(map[string]*Topic),
-		//logger: l,
 	}
 	return s
 }

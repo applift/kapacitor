@@ -2,6 +2,7 @@ package kapacitor
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path"
 	"sync"
@@ -91,7 +92,8 @@ func (n *HTTPOutNode) updateResultWithRow(idx int, row *models.Row) {
 	defer n.mu.Unlock()
 	if idx >= len(n.result.Series) {
 		n.incrementErrorCount()
-		n.diag.IndexOutOfRangeForRow(idx)
+		n.diag.Error("index out of range for row update",
+			fmt.Errorf("index %v is larger than number of series %v", idx, len(n.result.Series)))
 		return
 	}
 	n.result.Series[idx] = row

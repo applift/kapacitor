@@ -69,7 +69,8 @@ func (n *LogNode) BufferedBatch(batch edge.BufferedBatchMessage) (edge.Message, 
 		return batch, nil
 	}
 	// TODO: fix prefix and other loger here
-	n.diag.LogData(n.key, "Prefix", n.buf.String())
+	//       dont log log this as the type of string it currently is
+	n.diag.LogData(n.key, "", n.buf.String())
 	return batch, nil
 }
 

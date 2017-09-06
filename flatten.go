@@ -2,6 +2,7 @@ package kapacitor
 
 import (
 	"bytes"
+	"fmt"
 	"sync"
 	"time"
 
@@ -201,7 +202,7 @@ POINTS:
 				fieldPrefix.WriteString(v)
 			} else {
 				n.incrementErrorCount()
-				n.diag.MissingTagForFlattenOp(tag)
+				n.diag.Error("poing missing tag for flatten operation", fmt.Errorf("tag %s is missing from point", tag))
 				continue POINTS
 			}
 		}

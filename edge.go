@@ -45,8 +45,6 @@ func newEdge(taskName, parentName, childName string, t pipeline.EdgeType, size i
 	key, sm := vars.NewStatistic("edges", tags)
 	sm.Set(statCollected, e.CollectedVar())
 	sm.Set(statEmitted, e.EmittedVar())
-	// TODO: move to wherever new nodes are created
-	//name := fmt.Sprintf("%s|%s->%s", taskName, parentName, childName)
 	return &Edge{
 		StatsEdge: e,
 		statsKey:  key,

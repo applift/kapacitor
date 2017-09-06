@@ -28,19 +28,6 @@ const (
 
 type NodeDiagnostic interface {
 	Error(msg string, err error, ctx ...keyvalue.T)
-	//Info(msg string, ctx ...keyvalue.T)
-	// DerivativeNode
-	// Error
-	CannotPerformDerivative(reason string) // Hmm?? TODO: do we need this?
-	// FlattenNode
-	// Error
-	MissingTagForFlattenOp(tag string)
-	// HTTPOutNode
-	// Error
-	IndexOutOfRangeForRow(idx int)
-	// Loopback
-	// Error
-	LoopbackWriteFailed()
 
 	// AlertNode
 	AlertTriggered(level alert.Level, id string, message string, rows *models.Row)
