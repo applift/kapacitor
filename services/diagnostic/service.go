@@ -35,7 +35,7 @@ type Service struct {
 }
 
 func NewService() *Service {
-	// TODO: change
+	// TODO: change it
 	l := zap.NewExample()
 	return &Service{
 		logger: l,
