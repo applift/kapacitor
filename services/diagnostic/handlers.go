@@ -312,9 +312,12 @@ type HTTPDHandler struct {
 }
 
 func (h *HTTPDHandler) NewHTTPServerErrorLogger() *log.Logger {
-	// TODO: implement
-	//panic("not implemented")
-	return nil
+	s := &StaticLevelHandler{
+		l:     h.l.With(zap.String("service", "httpd_server_errors")),
+		level: LLError,
+	}
+
+	return log.New(s, "", log.LstdFlags)
 }
 
 func (h *HTTPDHandler) StartingService() {

@@ -27,7 +27,7 @@ type Server struct {
 	*server.Server
 	Config    *server.Config
 	buildInfo server.BuildInfo
-	ds        diagnostic.Service
+	ds        *diagnostic.Service
 }
 
 // NewServer returns a new instance of Server.

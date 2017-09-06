@@ -30,347 +30,290 @@ import (
 	"go.uber.org/zap"
 )
 
-// TODO:
-// maybe just make this a struct not an interface
-type Service interface {
-	NewVictorOpsHandler() victorops.Diagnostic
-	NewTalkHandler() talk.Diagnostic
-	NewSlackHandler() slack.Diagnostic
-	NewAlertaHandler() alerta.Diagnostic
-	NewHipChatHandler() hipchat.Diagnostic
-	NewPagerDutyHandler() pagerduty.Diagnostic
-	NewSMTPHandler() smtp.Diagnostic
-	NewOpsGenieHandler() opsgenie.Diagnostic
-	NewPushoverHandler() pushover.Diagnostic
-	NewHTTPPostHandler() httppost.Diagnostic
-	NewSensuHandler() sensu.Diagnostic
-	NewTelegramHandler() telegram.Diagnostic
-	NewSNMPTrapHandler() snmptrap.Diagnostic
-	NewMQTTHandler() mqtt.Diagnostic
-
-	NewStorageHandler() storage.Diagnostic
-	NewTaskStoreHandler() task_store.Diagnostic
-	NewReportingHandler() reporting.Diagnostic
-	NewHTTPDHandler() httpd.Diagnostic
-	NewKapacitorHandler() kapacitor.Diagnostic
-	NewAlertServiceHandler() alertservice.Diagnostic
-	NewUDFServiceHandler() udfservice.Diagnostic
-	NewConfigOverrideHandler() config.Diagnostic
-
-	// TODO: figure this out
-	// Without it you get an import cycle
-	NewServerHandler() *ServerHandler
-	NewReplayHandler() *ReplayHandler
-	NewK8sHandler() *K8sHandler
-	NewSwarmHandler() *SwarmHandler
-	NewDeadmanHandler() *DeadmanHandler
-	NewNoAuthHandler() *NoAuthHandler
-	NewStatsHandler() *StatsHandler
-	NewUDPHandler() *UDPHandler
-	NewInfluxDBHandler() *InfluxDBHandler
-
-	NewScraperHandler() *ScraperHandler
-	NewAzureHandler() *ScraperHandler
-	NewConsulHandler() *ScraperHandler
-	NewDNSHandler() *ScraperHandler
-	NewEC2Handler() *ScraperHandler
-	NewFileDiscoveryHandler() *ScraperHandler
-	NewGCEHandler() *ScraperHandler
-	NewMarathonHandler() *ScraperHandler
-	NewNerveHandler() *ScraperHandler
-	NewServersetHandler() *ScraperHandler
-	NewStaticDiscoveryHandler() *ScraperHandler
-	NewTritonHandler() *ScraperHandler
-
-	NewCmdHandler() *CmdHandler
-
-	NewStaticLevelHandler(string, string) (*StaticLevelHandler, error)
-}
-
-type service struct {
+type Service struct {
 	logger *zap.Logger
 }
 
-func NewService() Service {
+func NewService() *Service {
 	// TODO: change
 	l := zap.NewExample()
-	return &service{
+	return &Service{
 		logger: l,
 	}
 }
 
-func (s *service) NewVictorOpsHandler() victorops.Diagnostic {
+func (s *Service) NewVictorOpsHandler() victorops.Diagnostic {
 	return &VictorOpsHandler{
 		l: s.logger.With(zap.String("service", "victorops")),
 	}
 }
 
-func (s *service) NewSlackHandler() slack.Diagnostic {
+func (s *Service) NewSlackHandler() slack.Diagnostic {
 	return &SlackHandler{
 		l: s.logger.With(zap.String("service", "slack")),
 	}
 }
 
-func (s *service) NewTaskStoreHandler() task_store.Diagnostic {
+func (s *Service) NewTaskStoreHandler() task_store.Diagnostic {
 	return &TaskStoreHandler{
 		l: s.logger.With(zap.String("service", "task_store")),
 	}
 }
 
-func (s *service) NewReportingHandler() reporting.Diagnostic {
+func (s *Service) NewReportingHandler() reporting.Diagnostic {
 	return &ReportingHandler{
 		l: s.logger.With(zap.String("service", "reporting")),
 	}
 }
 
-func (s *service) NewStorageHandler() storage.Diagnostic {
+func (s *Service) NewStorageHandler() storage.Diagnostic {
 	return &StorageHandler{
 		l: s.logger.With(zap.String("service", "storage")),
 	}
 }
 
-func (s *service) NewHTTPDHandler() httpd.Diagnostic {
+func (s *Service) NewHTTPDHandler() httpd.Diagnostic {
 	return &HTTPDHandler{
 		l: s.logger.With(zap.String("service", "http")),
 	}
 }
 
-func (s *service) NewAlertaHandler() alerta.Diagnostic {
+func (s *Service) NewAlertaHandler() alerta.Diagnostic {
 	return &AlertaHandler{
 		l: s.logger.With(zap.String("service", "alerta")),
 	}
 }
 
-func (s *service) NewKapacitorHandler() kapacitor.Diagnostic {
+func (s *Service) NewKapacitorHandler() kapacitor.Diagnostic {
 	return &KapacitorHandler{
 		l: s.logger.With(zap.String("service", "kapacitor")), // TODO: what here
 	}
 }
 
-func (s *service) NewAlertServiceHandler() alertservice.Diagnostic {
+func (s *Service) NewAlertServiceHandler() alertservice.Diagnostic {
 	return &AlertServiceHandler{
 		l: s.logger.With(zap.String("service", "alert")),
 	}
 }
 
-func (s *service) NewHipChatHandler() hipchat.Diagnostic {
+func (s *Service) NewHipChatHandler() hipchat.Diagnostic {
 	return &HipChatHandler{
 		l: s.logger.With(zap.String("service", "hipchat")),
 	}
 }
 
-func (s *service) NewPagerDutyHandler() pagerduty.Diagnostic {
+func (s *Service) NewPagerDutyHandler() pagerduty.Diagnostic {
 	return &PagerDutyHandler{
 		l: s.logger.With(zap.String("service", "pagerduty")),
 	}
 }
 
-func (s *service) NewSMTPHandler() smtp.Diagnostic {
+func (s *Service) NewSMTPHandler() smtp.Diagnostic {
 	return &SMTPHandler{
 		l: s.logger.With(zap.String("service", "smtp")),
 	}
 }
 
-func (s *service) NewUDFServiceHandler() udfservice.Diagnostic {
+func (s *Service) NewUDFServiceHandler() udfservice.Diagnostic {
 	return &UDFServiceHandler{
 		l: s.logger.With(zap.String("service", "udf")),
 	}
 }
 
-func (s *service) NewOpsGenieHandler() opsgenie.Diagnostic {
+func (s *Service) NewOpsGenieHandler() opsgenie.Diagnostic {
 	return &OpsGenieHandler{
 		l: s.logger.With(zap.String("service", "opsgenie")),
 	}
 }
 
-func (s *service) NewPushoverHandler() pushover.Diagnostic {
+func (s *Service) NewPushoverHandler() pushover.Diagnostic {
 	return &PushoverHandler{
 		l: s.logger.With(zap.String("service", "pushover")),
 	}
 }
 
-func (s *service) NewHTTPPostHandler() httppost.Diagnostic {
+func (s *Service) NewHTTPPostHandler() httppost.Diagnostic {
 	return &HTTPPostHandler{
 		l: s.logger.With(zap.String("service", "httppost")),
 	}
 }
 
-func (s *service) NewSensuHandler() sensu.Diagnostic {
+func (s *Service) NewSensuHandler() sensu.Diagnostic {
 	return &SensuHandler{
 		l: s.logger.With(zap.String("service", "sensu")),
 	}
 }
 
-func (s *service) NewSNMPTrapHandler() snmptrap.Diagnostic {
+func (s *Service) NewSNMPTrapHandler() snmptrap.Diagnostic {
 	return &SNMPTrapHandler{
 		l: s.logger.With(zap.String("service", "snmp")),
 	}
 }
 
-func (s *service) NewTelegramHandler() telegram.Diagnostic {
+func (s *Service) NewTelegramHandler() telegram.Diagnostic {
 	return &TelegramHandler{
 		l: s.logger.With(zap.String("service", "telegram")),
 	}
 }
 
-func (s *service) NewMQTTHandler() mqtt.Diagnostic {
+func (s *Service) NewMQTTHandler() mqtt.Diagnostic {
 	return &MQTTHandler{
 		l: s.logger.With(zap.String("service", "mqtt")),
 	}
 }
 
-func (s *service) NewTalkHandler() talk.Diagnostic {
+func (s *Service) NewTalkHandler() talk.Diagnostic {
 	return &TalkHandler{
 		l: s.logger.With(zap.String("service", "talk")),
 	}
 }
 
-func (s *service) NewConfigOverrideHandler() config.Diagnostic {
+func (s *Service) NewConfigOverrideHandler() config.Diagnostic {
 	return &ConfigOverrideHandler{
 		l: s.logger.With(zap.String("service", "config-override")),
 	}
 }
 
-func (s *service) NewServerHandler() *ServerHandler {
+func (s *Service) NewServerHandler() *ServerHandler {
 	return &ServerHandler{
 		// TODO: what to make key here
 		l: s.logger.With(zap.String("source", "srv")),
 	}
 }
 
-func (s *service) NewReplayHandler() *ReplayHandler {
+func (s *Service) NewReplayHandler() *ReplayHandler {
 	return &ReplayHandler{
 		l: s.logger.With(zap.String("service", "replay")),
 	}
 }
 
-func (s *service) NewK8sHandler() *K8sHandler {
+func (s *Service) NewK8sHandler() *K8sHandler {
 	return &K8sHandler{
 		l: s.logger.With(zap.String("service", "kubernetes")),
 	}
 }
 
-func (s *service) NewSwarmHandler() *SwarmHandler {
+func (s *Service) NewSwarmHandler() *SwarmHandler {
 	return &SwarmHandler{
 		l: s.logger.With(zap.String("service", "swarm")),
 	}
 }
 
-func (s *service) NewDeadmanHandler() *DeadmanHandler {
+func (s *Service) NewDeadmanHandler() *DeadmanHandler {
 	return &DeadmanHandler{
 		l: s.logger.With(zap.String("service", "deadman")),
 	}
 }
 
-func (s *service) NewNoAuthHandler() *NoAuthHandler {
+func (s *Service) NewNoAuthHandler() *NoAuthHandler {
 	return &NoAuthHandler{
 		l: s.logger.With(zap.String("service", "noauth")),
 	}
 }
 
-func (s *service) NewStatsHandler() *StatsHandler {
+func (s *Service) NewStatsHandler() *StatsHandler {
 	return &StatsHandler{
 		l: s.logger.With(zap.String("service", "stats")),
 	}
 }
 
-func (s *service) NewUDPHandler() *UDPHandler {
+func (s *Service) NewUDPHandler() *UDPHandler {
 	return &UDPHandler{
 		l: s.logger.With(zap.String("service", "udp")),
 	}
 }
 
-func (s *service) NewInfluxDBHandler() *InfluxDBHandler {
+func (s *Service) NewInfluxDBHandler() *InfluxDBHandler {
 	return &InfluxDBHandler{
 		l: s.logger.With(zap.String("service", "influxdb")),
 	}
 }
 
-func (s *service) NewScraperHandler() *ScraperHandler {
+func (s *Service) NewScraperHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "scraper")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewAzureHandler() *ScraperHandler {
+func (s *Service) NewAzureHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "azure")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewConsulHandler() *ScraperHandler {
+func (s *Service) NewConsulHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "consul")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewDNSHandler() *ScraperHandler {
+func (s *Service) NewDNSHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "dns")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewEC2Handler() *ScraperHandler {
+func (s *Service) NewEC2Handler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "ec2")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewFileDiscoveryHandler() *ScraperHandler {
+func (s *Service) NewFileDiscoveryHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "file-discovery")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewGCEHandler() *ScraperHandler {
+func (s *Service) NewGCEHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "gce")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewMarathonHandler() *ScraperHandler {
+func (s *Service) NewMarathonHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "marathon")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewNerveHandler() *ScraperHandler {
+func (s *Service) NewNerveHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "nerve")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewServersetHandler() *ScraperHandler {
+func (s *Service) NewServersetHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "serverset")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewStaticDiscoveryHandler() *ScraperHandler {
+func (s *Service) NewStaticDiscoveryHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "static-discovery")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewTritonHandler() *ScraperHandler {
+func (s *Service) NewTritonHandler() *ScraperHandler {
 	return &ScraperHandler{
 		l:   s.logger.With(zap.String("service", "triton")),
 		buf: bytes.NewBuffer(nil),
 	}
 }
 
-func (s *service) NewStaticLevelHandler(level string, service string) (*StaticLevelHandler, error) {
+func (s *Service) NewStaticLevelHandler(level string, service string) (*StaticLevelHandler, error) {
 	var ll LogLevel
 
 	switch level {
@@ -398,7 +341,7 @@ func (s *service) NewStaticLevelHandler(level string, service string) (*StaticLe
 	}, nil
 }
 
-func (s *service) NewCmdHandler() *CmdHandler {
+func (s *Service) NewCmdHandler() *CmdHandler {
 	return &CmdHandler{
 		l: s.logger.With(zap.String("service", "run")),
 	}

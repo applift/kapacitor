@@ -48,7 +48,7 @@ type Command struct {
 	Stderr io.Writer
 
 	Server      *server.Server
-	diagService diagnostic.Service
+	diagService *diagnostic.Service
 
 	Diag Diagnostic
 }

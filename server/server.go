@@ -140,12 +140,12 @@ type Server struct {
 	CPUProfile string
 	MemProfile string
 
-	DiagService diagnostic.Service
+	DiagService *diagnostic.Service
 	Diag        Diagnostic
 }
 
 // New returns a new instance of Server built from a config.
-func New(c *Config, buildInfo BuildInfo, diagService diagnostic.Service) (*Server, error) {
+func New(c *Config, buildInfo BuildInfo, diagService *diagnostic.Service) (*Server, error) {
 	err := c.Validate()
 	if err != nil {
 		return nil, fmt.Errorf("%s. To generate a valid configuration file run `kapacitord config > kapacitor.generated.conf`.", err)
