@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"runtime"
 	"sync"
 	"time"
 
@@ -1297,15 +1298,27 @@ func (h *StaticLevelHandler) Write(buf []byte) (int, error) {
 	return len(buf), nil
 }
 
-// Template handler
+// Cmd handler
 
-//type Handler struct {
-//	l *zap.Logger
-//}
-//
-//func (h *Handler) Error(msg string, err error) {
-//	h.l.Error(msg, zap.Error(err))
-//}
+type CmdHandler struct {
+	l *zap.Logger
+}
+
+func (h *CmdHandler) Error(msg string, err error) {
+	h.l.Error(msg, zap.Error(err))
+}
+
+func (h *CmdHandler) KapacitorStarting(version, branch, commit string) {
+	h.l.Info("kapacitor starting", zap.String("version", version), zap.String("branch", branch), zap.String("commit", commit))
+}
+
+func (h *CmdHandler) GoVersion() {
+	h.l.Info("go version", zap.String("version", runtime.Version()))
+}
+
+func (h *CmdHandler) Info(msg string) {
+	h.l.Info(msg)
+}
 
 // Template handler
 

@@ -82,6 +82,8 @@ type Service interface {
 	NewStaticDiscoveryHandler() *ScraperHandler
 	NewTritonHandler() *ScraperHandler
 
+	NewCmdHandler() *CmdHandler
+
 	NewStaticLevelHandler(string, string) (*StaticLevelHandler, error)
 }
 
@@ -394,4 +396,10 @@ func (s *service) NewStaticLevelHandler(level string, service string) (*StaticLe
 		l:     s.logger.With(zap.String("service", service)),
 		level: ll,
 	}, nil
+}
+
+func (s *service) NewCmdHandler() *CmdHandler {
+	return &CmdHandler{
+		l: s.logger.With(zap.String("service", "run")),
+	}
 }

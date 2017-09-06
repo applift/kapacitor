@@ -8,14 +8,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/influxdata/kapacitor/server"
 	"github.com/influxdata/kapacitor/services/diagnostic"
-	"github.com/influxdata/kapacitor/services/logging"
-	"github.com/influxdata/kapacitor/tick"
 )
 
 const logo = `
@@ -29,6 +26,13 @@ const logo = `
 ..::::..::..:::::..::..:::::::::..:::::..:::......:::....:::::..::::::.......:::..:::::..::
 
 `
+
+type Diagnostic interface {
+	Error(msg string, err error)
+	KapacitorStarting(version, branch, commit string)
+	GoVersion()
+	Info(msg string)
+}
 
 // Command represents the command executed by "kapacitord run".
 type Command struct {
@@ -44,9 +48,9 @@ type Command struct {
 	Stderr io.Writer
 
 	Server      *server.Server
-	Logger      *log.Logger
-	logService  *logging.Service
 	diagService diagnostic.Service
+
+	Diag Diagnostic
 }
 
 // NewCommand return a new instance of Command.
@@ -98,23 +102,16 @@ func (cmd *Command) Run(args ...string) error {
 	}
 
 	// Initialize Logging Services
-	cmd.logService = logging.NewService(config.Logging, cmd.Stdout, cmd.Stderr)
-	err = cmd.logService.Open()
-	if err != nil {
-		return fmt.Errorf("init logging: %s", err)
-	}
-	// Initialize packages loggers
-	tick.SetLogger(cmd.logService.NewLogger("[tick] ", log.LstdFlags))
+	// TODO: come back here for diagnostic settings
+	//cmd.logService = logging.NewService(config.Logging, cmd.Stdout, cmd.Stderr)
+	cmd.diagService = diagnostic.NewService()
 
-	// Initialize cmd logger
-	cmd.Logger = cmd.logService.NewLogger("[run] ", log.LstdFlags)
+	// Initialize cmd diagnostic
+	cmd.Diag = cmd.diagService.NewCmdHandler()
 
 	// Mark start-up in log.,
-	cmd.Logger.Printf("I! Kapacitor starting, version %s, branch %s, commit %s", cmd.Version, cmd.Branch, cmd.Commit)
-	cmd.Logger.Printf("I! Go version %s", runtime.Version())
-
-	// TODO: real implementation here
-	cmd.diagService = diagnostic.NewService()
+	cmd.Diag.KapacitorStarting(cmd.Version, cmd.Branch, cmd.Commit)
+	cmd.Diag.GoVersion()
 
 	// Write the PID file.
 	if err := cmd.writePIDFile(options.PIDFile); err != nil {
@@ -147,9 +144,10 @@ func (cmd *Command) Close() error {
 	if cmd.Server != nil {
 		return cmd.Server.Close()
 	}
-	if cmd.logService != nil {
-		return cmd.logService.Close()
-	}
+	// TODO: revist for diagnostic
+	//if cmd.logService != nil {
+	//	return cmd.logService.Close()
+	//}
 	return nil
 }
 
@@ -158,7 +156,7 @@ func (cmd *Command) monitorServerErrors() {
 		select {
 		case err := <-cmd.Server.Err():
 			if err != nil {
-				cmd.Logger.Println("E! " + err.Error())
+				cmd.Diag.Error("encountered error", err)
 			}
 		case <-cmd.closing:
 			return
