@@ -123,7 +123,7 @@ func (cmd *Command) Run(args ...string) error {
 
 	// Create server from config and start it.
 	buildInfo := server.BuildInfo{Version: cmd.Version, Commit: cmd.Commit, Branch: cmd.Branch}
-	s, err := server.New(config, buildInfo, cmd.logService, cmd.diagService)
+	s, err := server.New(config, buildInfo, cmd.diagService)
 	if err != nil {
 		return fmt.Errorf("create server: %s", err)
 	}

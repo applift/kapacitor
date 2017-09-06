@@ -37,7 +37,6 @@ import (
 	"github.com/influxdata/kapacitor/services/httppost"
 	"github.com/influxdata/kapacitor/services/influxdb"
 	"github.com/influxdata/kapacitor/services/k8s"
-	"github.com/influxdata/kapacitor/services/logging"
 	"github.com/influxdata/kapacitor/services/marathon"
 	"github.com/influxdata/kapacitor/services/mqtt"
 	"github.com/influxdata/kapacitor/services/nerve"
@@ -141,13 +140,12 @@ type Server struct {
 	CPUProfile string
 	MemProfile string
 
-	LogService  logging.Interface
 	DiagService diagnostic.Service
 	Diag        Diagnostic
 }
 
 // New returns a new instance of Server built from a config.
-func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagService diagnostic.Service) (*Server, error) {
+func New(c *Config, buildInfo BuildInfo, diagService diagnostic.Service) (*Server, error) {
 	err := c.Validate()
 	if err != nil {
 		return nil, fmt.Errorf("%s. To generate a valid configuration file run `kapacitord config > kapacitor.generated.conf`.", err)
@@ -160,7 +158,6 @@ func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagServi
 		hostname:         c.Hostname,
 		err:              make(chan error),
 		configUpdates:    make(chan config.ConfigUpdate, 100),
-		LogService:       logService,
 		DiagService:      diagService,
 		MetaClient:       &kapacitor.NoopMetaClient{},
 		QueryExecutor:    &Queryexecutor{},
