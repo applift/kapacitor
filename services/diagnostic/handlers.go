@@ -2,6 +2,7 @@ package diagnostic
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -1260,6 +1261,51 @@ func (h *EdgeHandler) Collect(mtype edge.MessageType) {
 func (h *EdgeHandler) Emit(mtype edge.MessageType) {
 	h.l.Debug("emitted message", zap.Stringer("message_type", mtype))
 }
+
+type LogLevel int
+
+const (
+	LLInvalid LogLevel = iota
+	LLDebug
+	LLError
+	LLFatal
+	LLInfo
+	LLWarn
+)
+
+type StaticLevelHandler struct {
+	l     *zap.Logger
+	level LogLevel
+}
+
+func (h *StaticLevelHandler) Write(buf []byte) (int, error) {
+	switch h.level {
+	case LLDebug:
+		h.l.Debug(string(buf))
+	case LLError:
+		h.l.Error(string(buf))
+	case LLFatal:
+		h.l.Fatal(string(buf))
+	case LLInfo:
+		h.l.Info(string(buf))
+	case LLWarn:
+		h.l.Warn(string(buf))
+	default:
+		return 0, errors.New("invalid log level")
+	}
+
+	return len(buf), nil
+}
+
+// Template handler
+
+//type Handler struct {
+//	l *zap.Logger
+//}
+//
+//func (h *Handler) Error(msg string, err error) {
+//	h.l.Error(msg, zap.Error(err))
+//}
 
 // Template handler
 

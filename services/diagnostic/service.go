@@ -2,6 +2,7 @@ package diagnostic
 
 import (
 	"bytes"
+	"errors"
 
 	"github.com/influxdata/kapacitor"
 	//"github.com/influxdata/kapacitor/server"
@@ -80,6 +81,8 @@ type Service interface {
 	NewServersetHandler() *ScraperHandler
 	NewStaticDiscoveryHandler() *ScraperHandler
 	NewTritonHandler() *ScraperHandler
+
+	NewStaticLevelHandler(string, string) (*StaticLevelHandler, error)
 }
 
 type service struct {
@@ -363,4 +366,32 @@ func (s *service) NewTritonHandler() *ScraperHandler {
 		l:   s.logger.With(zap.String("service", "triton")),
 		buf: bytes.NewBuffer(nil),
 	}
+}
+
+func (s *service) NewStaticLevelHandler(level string, service string) (*StaticLevelHandler, error) {
+	var ll LogLevel
+
+	switch level {
+	case "debug":
+		ll = LLDebug
+	case "error":
+		ll = LLError
+	case "fatal":
+		ll = LLFatal
+	case "info":
+		ll = LLInfo
+	case "warn":
+		ll = LLWarn
+	default:
+		ll = LLInvalid
+	}
+
+	if ll == LLInvalid {
+		return nil, errors.New("invalid log level")
+	}
+
+	return &StaticLevelHandler{
+		l:     s.logger.With(zap.String("service", service)),
+		level: ll,
+	}, nil
 }

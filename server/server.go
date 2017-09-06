@@ -245,7 +245,9 @@ func New(c *Config, buildInfo BuildInfo, logService logging.Interface, diagServi
 
 	// Append third-party integrations
 	// Append extra input services
-	s.appendCollectdService()
+	if err := s.appendCollectdService(); err != nil {
+		return nil, errors.Wrap(err, "collectd service")
+	}
 	s.appendUDPServices()
 	if err := s.appendOpenTSDBService(); err != nil {
 		return nil, errors.Wrap(err, "opentsdb service")
@@ -651,18 +653,24 @@ func (s *Server) appendTalkService() {
 	s.AppendService("talk", srv)
 }
 
-func (s *Server) appendCollectdService() {
+func (s *Server) appendCollectdService() error {
 	c := s.config.Collectd
 	if !c.Enabled {
-		return
+		return nil
 	}
 	srv := collectd.NewService(c)
-	w := s.LogService.NewStaticLevelWriter(logging.INFO)
+	//TODO: this function signature OK?
+	w, err := s.DiagService.NewStaticLevelHandler("info", "collectd")
+	if err != nil {
+		return fmt.Errorf("failed to create static level handler for collectd: %v", err)
+	}
 	srv.SetLogOutput(w)
 
 	srv.MetaClient = s.MetaClient
 	srv.PointsWriter = s.TaskMaster
 	s.AppendService("collectd", srv)
+
+	return nil
 }
 
 func (s *Server) appendOpenTSDBService() error {
@@ -674,7 +682,10 @@ func (s *Server) appendOpenTSDBService() error {
 	if err != nil {
 		return err
 	}
-	w := s.LogService.NewStaticLevelWriter(logging.INFO)
+	w, err := s.DiagService.NewStaticLevelHandler("info", "opentsdb")
+	if err != nil {
+		return fmt.Errorf("failed to create static level handler for opentsdb: %v", err)
+	}
 	srv.SetLogOutput(w)
 
 	srv.PointsWriter = s.TaskMaster
@@ -692,7 +703,10 @@ func (s *Server) appendGraphiteServices() error {
 		if err != nil {
 			return errors.Wrap(err, "creating new graphite service")
 		}
-		w := s.LogService.NewStaticLevelWriter(logging.INFO)
+		w, err := s.DiagService.NewStaticLevelHandler("info", "graphite")
+		if err != nil {
+			return fmt.Errorf("failed to create static level handler for graphite: %v", err)
+		}
 		srv.SetLogOutput(w)
 
 		srv.PointsWriter = s.TaskMaster
