@@ -81,6 +81,9 @@ func (n *LogNode) Point(p edge.PointMessage) (edge.Message, error) {
 		n.diag.Error("failed to encode stream data", err)
 		return p, nil
 	}
+
+	// TODO: fix prefix and other loger here
+	//       dont log log this as the type of string it currently is
 	n.diag.LogData(n.key, "Prefix", n.buf.String())
 	return p, nil
 }

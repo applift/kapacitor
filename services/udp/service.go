@@ -97,7 +97,6 @@ func (s *Service) Open() (err error) {
 	if s.config.ReadBuffer != 0 {
 		err = s.conn.SetReadBuffer(s.config.ReadBuffer)
 		if err != nil {
-			// TODO: what is a read buffer
 			s.Diag.Error("failed to set UDP read buffer", err, keyvalue.KV("read_buffer", fmt.Sprintf("%v", s.config.ReadBuffer)))
 			return err
 		}

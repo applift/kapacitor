@@ -4,10 +4,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/influxdata/kapacitor/alert"
 	"github.com/influxdata/kapacitor/edge"
+	"github.com/influxdata/kapacitor/keyvalue"
 	"github.com/influxdata/kapacitor/models"
 	"github.com/stretchr/testify/assert"
 )
+
+// Mock node diagnostic
+type nodeDiagnostic struct{}
+
+func newNodeDiagnostic() *nodeDiagnostic { return &nodeDiagnostic{} }
+
+func (d *nodeDiagnostic) Error(msg string, err error, ctx ...keyvalue.T) {}
+func (d *nodeDiagnostic) AlertTriggered(level alert.Level, id string, message string, rows *models.Row) {
+}
+func (d *nodeDiagnostic) SettingReplicas(new int, old int, id string)    {}
+func (d *nodeDiagnostic) StartingBatchQuery(q string)                    {}
+func (d *nodeDiagnostic) LogData(key string, prefix string, data string) {}
+func (d *nodeDiagnostic) UDFLog(s string)                                {}
 
 func TestWindowBufferByTime(t *testing.T) {
 	assert := assert.New(t)
@@ -127,7 +142,7 @@ func TestWindowBufferByCount(t *testing.T) {
 			tc.period,
 			tc.every,
 			tc.fillPeriod,
-			nil, // TODO: actuall fix this
+			newNodeDiagnostic(),
 		)
 
 		// fill buffer

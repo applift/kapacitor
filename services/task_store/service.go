@@ -934,10 +934,12 @@ func (ts *Service) handleUpdateTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := ts.tasks.Delete(original.ID); err != nil {
-			// TODO: idk about this formatting
 			ts.diag.Error(
-				"failed to felete old task definition during ID change", err,
-				keyvalue.KV("oldID", original.ID), keyvalue.KV("newID", updated.ID))
+				"failed to delete old task definition during ID change",
+				err,
+				keyvalue.KV("oldID", original.ID),
+				keyvalue.KV("newID", updated.ID),
+			)
 		}
 		if original.Status == Enabled && updated.Status == Enabled {
 			// Stop task and start it under new name

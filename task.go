@@ -554,7 +554,7 @@ func (et *ExecutingTask) runSnapshotter() {
 		case <-ticker.C:
 			snapshot, err := et.Snapshot()
 			if err != nil {
-				// TODO: I think this might already have the task id
+				// TODO(desa): I think this might already have the task id
 				et.diag.Error("failed to snapshot task", err, keyvalue.KV("task_id", et.Task.ID))
 				break
 			}
@@ -566,7 +566,7 @@ func (et *ExecutingTask) runSnapshotter() {
 			if size > 0 {
 				err = et.tm.TaskStore.SaveSnapshot(et.Task.ID, snapshot)
 				if err != nil {
-					// TODO: I think this might already have the task id
+					// TODO(desa): I think this might already have the task id
 					et.diag.Error("failed to save task snapshot", err, keyvalue.KV("task_id", et.Task.ID))
 				}
 			}

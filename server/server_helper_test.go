@@ -39,7 +39,6 @@ func NewServer(c *server.Config) *Server {
 		Branch:  "testBranch",
 	}
 	c.HTTP.LogEnabled = testing.Verbose()
-	// TODO: maybe have a test logger?
 	ds := diagnostic.NewService()
 	srv, err := server.New(c, buildInfo, ds)
 	if err != nil {

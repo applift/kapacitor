@@ -265,7 +265,7 @@ func (p *UDFProcess) logStdErr() {
 	defer p.logStdErrGroup.Done()
 	scanner := bufio.NewScanner(p.stderr)
 	for scanner.Scan() {
-		// TODO: how to fix Temporary fix
+		// TODO(desa): fix the issue here. issue comes from loadUDFInfo in services/udf/service.go
 		if p.diag != nil {
 			p.diag.UDFLog(scanner.Text())
 		}

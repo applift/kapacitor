@@ -118,7 +118,8 @@ func (s *Service) loadUDFInfo(name string) (udf.Info, error) {
 	// because it only makes the Info request and never makes an Init request.
 	// As such it does not need to provide actual task and node IDs.
 
-	// TODO: that okay? Nil check against this happens in udf.go logStdErr()
+	// TODO(desa): that okay? Nil check against this happens in udf.go logStdErr()
+	// alternative would be to have a mock implementation that gets passed in here
 	u, err := s.Create(name, "", "", nil, nil)
 	if err != nil {
 		return udf.Info{}, err

@@ -595,7 +595,6 @@ func (tm *TaskMaster) stream(name string) (StreamCollector, error) {
 	if tm.closed {
 		return nil, ErrTaskMasterClosed
 	}
-	// TODO: idk about the task_name here?
 	d := tm.diag.WithEdgeContext(fmt.Sprintf("task_master:%s", tm.id), name, "stream")
 	in := newEdge(fmt.Sprintf("task_master:%s", tm.id), name, "stream", pipeline.StreamEdge, defaultEdgeBufferSize, d)
 	se := &streamEdge{edge: in}
@@ -776,7 +775,6 @@ func (tm *TaskMaster) newFork(taskName string, dbrps []DBRP, measurements []stri
 		return nil, ErrTaskMasterClosed
 	}
 
-	// TODO: revisit
 	d := tm.diag.WithEdgeContext(taskName, "stream", "stream0")
 	e := newEdge(taskName, "stream", "stream0", pipeline.StreamEdge, defaultEdgeBufferSize, d)
 
