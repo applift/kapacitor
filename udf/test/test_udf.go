@@ -3,7 +3,7 @@ package udf_test
 import (
 	"bufio"
 	"io"
-	"os"
+	"io/ioutil"
 
 	"github.com/influxdata/kapacitor"
 	"github.com/influxdata/kapacitor/services/diagnostic"
@@ -16,7 +16,7 @@ var diagService *diagnostic.Service
 var kapacitorDiag kapacitor.Diagnostic
 
 func init() {
-	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), ioutil.Discard, ioutil.Discard)
 	diagService.Open()
 	kapacitorDiag = diagService.NewKapacitorHandler()
 }

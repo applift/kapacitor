@@ -2,8 +2,8 @@ package httpdtest
 
 import (
 	"expvar"
+	"io/ioutil"
 	"net/http/httptest"
-	"os"
 
 	"github.com/influxdata/kapacitor/services/diagnostic"
 	"github.com/influxdata/kapacitor/services/httpd"
@@ -17,7 +17,7 @@ type Server struct {
 func NewServer(verbose bool) *Server {
 	statMap := &expvar.Map{}
 	statMap.Init()
-	ds := diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	ds := diagnostic.NewService(diagnostic.NewConfig(), ioutil.Discard, ioutil.Discard)
 	ds.Open()
 	s := &Server{
 		Handler: httpd.NewHandler(
