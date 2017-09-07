@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"strconv"
 	"sync"
 	"time"
 
@@ -1114,7 +1115,7 @@ func (h *ScraperHandler) Debugln(ctx ...interface{}) {
 	defer h.buf.Reset()
 	fmt.Fprintln(h.buf, ctx...)
 
-	h.l.Debug(h.buf.String())
+	h.l.Debug(strconv.Quote(h.buf.String()))
 }
 
 func (h *ScraperHandler) Debugf(s string, ctx ...interface{}) {
@@ -1136,7 +1137,7 @@ func (h *ScraperHandler) Infoln(ctx ...interface{}) {
 	defer h.buf.Reset()
 	fmt.Fprintln(h.buf, ctx...)
 
-	h.l.Info(h.buf.String())
+	h.l.Info(strconv.Quote(h.buf.String()))
 }
 
 func (h *ScraperHandler) Infof(s string, ctx ...interface{}) {
@@ -1158,7 +1159,7 @@ func (h *ScraperHandler) Warnln(ctx ...interface{}) {
 	defer h.buf.Reset()
 	fmt.Fprintln(h.buf, ctx...)
 
-	h.l.Warn(h.buf.String())
+	h.l.Warn(strconv.Quote(h.buf.String()))
 }
 
 func (h *ScraperHandler) Warnf(s string, ctx ...interface{}) {
@@ -1180,7 +1181,7 @@ func (h *ScraperHandler) Errorln(ctx ...interface{}) {
 	defer h.buf.Reset()
 	fmt.Fprintln(h.buf, ctx...)
 
-	h.l.Error(h.buf.String())
+	h.l.Error(strconv.Quote(h.buf.String()))
 }
 
 func (h *ScraperHandler) Errorf(s string, ctx ...interface{}) {
