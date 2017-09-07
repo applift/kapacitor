@@ -49,7 +49,7 @@ func (s *Service) Open() error {
 		level = zapcore.DebugLevel
 	}
 	p := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl <= level
+		return lvl >= level
 	})
 
 	switch s.c.File {
