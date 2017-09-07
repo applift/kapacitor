@@ -38,6 +38,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Alert Service Handler
+
 type AlertServiceHandler struct {
 	l *zap.Logger
 }
@@ -210,8 +212,7 @@ func (h *KapacitorHandler) SettingReplicas(new int, old int, id string) {
 	h.l.Debug("setting replicas",
 		zap.Int("new", new),
 		zap.Int("old", old),
-		// TODO: what is this ID?
-		zap.String("id", id),
+		zap.String("event_id", id),
 	)
 }
 
@@ -1070,8 +1071,7 @@ func (h *InfluxDBHandler) WithClusterContext(id string) influxdb.Diagnostic {
 
 func (h *InfluxDBHandler) WithUDPContext(id string) udp.Diagnostic {
 	return &UDPHandler{
-		// TODO: okay?
-		l: h.l.With(zap.String("id", id)),
+		l: h.l.With(zap.String("listener_id", id)),
 	}
 }
 
@@ -1209,10 +1209,24 @@ func (h *ScraperHandler) Fatalf(s string, ctx ...interface{}) {
 	h.l.Fatal(fmt.Sprintf(s, ctx...))
 }
 
-// TODO: actually implement
 func (h *ScraperHandler) With(key string, value interface{}) plog.Logger {
+	var field zapcore.Field
+
+	switch value.(type) {
+	case int:
+		field = zap.Int(key, value.(int))
+	case float64:
+		field = zap.Float64(key, value.(float64))
+	case string:
+		field = zap.String(key, value.(string))
+	case time.Duration:
+		field = zap.Duration(key, value.(time.Duration))
+	default:
+		field = zap.String(key, fmt.Sprintf("%v", value))
+	}
+
 	return &ScraperHandler{
-		l: h.l,
+		l: h.l.With(field),
 	}
 }
 
