@@ -109,7 +109,6 @@ type KapacitorHandler struct {
 	l *zap.Logger
 }
 
-// TODO: create TaskMasterHandler
 func (h *KapacitorHandler) WithTaskContext(task string) kapacitor.TaskDiagnostic {
 	return &KapacitorHandler{
 		l: h.l.With(zap.String("task", task)),

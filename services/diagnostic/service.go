@@ -7,29 +7,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/influxdata/kapacitor"
 	//"github.com/influxdata/kapacitor/server"
-	alertservice "github.com/influxdata/kapacitor/services/alert"
-	"github.com/influxdata/kapacitor/services/alerta"
-	"github.com/influxdata/kapacitor/services/config"
-	"github.com/influxdata/kapacitor/services/hipchat"
-	"github.com/influxdata/kapacitor/services/httpd"
-	"github.com/influxdata/kapacitor/services/httppost"
-	"github.com/influxdata/kapacitor/services/mqtt"
-	"github.com/influxdata/kapacitor/services/opsgenie"
-	"github.com/influxdata/kapacitor/services/pagerduty"
-	"github.com/influxdata/kapacitor/services/pushover"
-	"github.com/influxdata/kapacitor/services/reporting"
-	"github.com/influxdata/kapacitor/services/sensu"
-	"github.com/influxdata/kapacitor/services/slack"
-	"github.com/influxdata/kapacitor/services/smtp"
-	"github.com/influxdata/kapacitor/services/snmptrap"
-	"github.com/influxdata/kapacitor/services/storage"
-	"github.com/influxdata/kapacitor/services/talk"
-	"github.com/influxdata/kapacitor/services/task_store"
-	"github.com/influxdata/kapacitor/services/telegram"
-	udfservice "github.com/influxdata/kapacitor/services/udf"
-	"github.com/influxdata/kapacitor/services/victorops"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -111,133 +90,133 @@ func (s *Service) Close() error {
 	return nil
 }
 
-func (s *Service) NewVictorOpsHandler() victorops.Diagnostic {
+func (s *Service) NewVictorOpsHandler() *VictorOpsHandler {
 	return &VictorOpsHandler{
 		l: s.logger.With(zap.String("service", "victorops")),
 	}
 }
 
-func (s *Service) NewSlackHandler() slack.Diagnostic {
+func (s *Service) NewSlackHandler() *SlackHandler {
 	return &SlackHandler{
 		l: s.logger.With(zap.String("service", "slack")),
 	}
 }
 
-func (s *Service) NewTaskStoreHandler() task_store.Diagnostic {
+func (s *Service) NewTaskStoreHandler() *TaskStoreHandler {
 	return &TaskStoreHandler{
 		l: s.logger.With(zap.String("service", "task_store")),
 	}
 }
 
-func (s *Service) NewReportingHandler() reporting.Diagnostic {
+func (s *Service) NewReportingHandler() *ReportingHandler {
 	return &ReportingHandler{
 		l: s.logger.With(zap.String("service", "reporting")),
 	}
 }
 
-func (s *Service) NewStorageHandler() storage.Diagnostic {
+func (s *Service) NewStorageHandler() *StorageHandler {
 	return &StorageHandler{
 		l: s.logger.With(zap.String("service", "storage")),
 	}
 }
 
-func (s *Service) NewHTTPDHandler() httpd.Diagnostic {
+func (s *Service) NewHTTPDHandler() *HTTPDHandler {
 	return &HTTPDHandler{
 		l: s.logger.With(zap.String("service", "http")),
 	}
 }
 
-func (s *Service) NewAlertaHandler() alerta.Diagnostic {
+func (s *Service) NewAlertaHandler() *AlertaHandler {
 	return &AlertaHandler{
 		l: s.logger.With(zap.String("service", "alerta")),
 	}
 }
 
-func (s *Service) NewKapacitorHandler() kapacitor.Diagnostic {
+func (s *Service) NewKapacitorHandler() *KapacitorHandler {
 	return &KapacitorHandler{
 		l: s.logger.With(zap.String("service", "kapacitor")), // TODO: what here
 	}
 }
 
-func (s *Service) NewAlertServiceHandler() alertservice.Diagnostic {
+func (s *Service) NewAlertServiceHandler() *AlertServiceHandler {
 	return &AlertServiceHandler{
 		l: s.logger.With(zap.String("service", "alert")),
 	}
 }
 
-func (s *Service) NewHipChatHandler() hipchat.Diagnostic {
+func (s *Service) NewHipChatHandler() *HipChatHandler {
 	return &HipChatHandler{
 		l: s.logger.With(zap.String("service", "hipchat")),
 	}
 }
 
-func (s *Service) NewPagerDutyHandler() pagerduty.Diagnostic {
+func (s *Service) NewPagerDutyHandler() *PagerDutyHandler {
 	return &PagerDutyHandler{
 		l: s.logger.With(zap.String("service", "pagerduty")),
 	}
 }
 
-func (s *Service) NewSMTPHandler() smtp.Diagnostic {
+func (s *Service) NewSMTPHandler() *SMTPHandler {
 	return &SMTPHandler{
 		l: s.logger.With(zap.String("service", "smtp")),
 	}
 }
 
-func (s *Service) NewUDFServiceHandler() udfservice.Diagnostic {
+func (s *Service) NewUDFServiceHandler() *UDFServiceHandler {
 	return &UDFServiceHandler{
 		l: s.logger.With(zap.String("service", "udf")),
 	}
 }
 
-func (s *Service) NewOpsGenieHandler() opsgenie.Diagnostic {
+func (s *Service) NewOpsGenieHandler() *OpsGenieHandler {
 	return &OpsGenieHandler{
 		l: s.logger.With(zap.String("service", "opsgenie")),
 	}
 }
 
-func (s *Service) NewPushoverHandler() pushover.Diagnostic {
+func (s *Service) NewPushoverHandler() *PushoverHandler {
 	return &PushoverHandler{
 		l: s.logger.With(zap.String("service", "pushover")),
 	}
 }
 
-func (s *Service) NewHTTPPostHandler() httppost.Diagnostic {
+func (s *Service) NewHTTPPostHandler() *HTTPPostHandler {
 	return &HTTPPostHandler{
 		l: s.logger.With(zap.String("service", "httppost")),
 	}
 }
 
-func (s *Service) NewSensuHandler() sensu.Diagnostic {
+func (s *Service) NewSensuHandler() *SensuHandler {
 	return &SensuHandler{
 		l: s.logger.With(zap.String("service", "sensu")),
 	}
 }
 
-func (s *Service) NewSNMPTrapHandler() snmptrap.Diagnostic {
+func (s *Service) NewSNMPTrapHandler() *SNMPTrapHandler {
 	return &SNMPTrapHandler{
 		l: s.logger.With(zap.String("service", "snmp")),
 	}
 }
 
-func (s *Service) NewTelegramHandler() telegram.Diagnostic {
+func (s *Service) NewTelegramHandler() *TelegramHandler {
 	return &TelegramHandler{
 		l: s.logger.With(zap.String("service", "telegram")),
 	}
 }
 
-func (s *Service) NewMQTTHandler() mqtt.Diagnostic {
+func (s *Service) NewMQTTHandler() *MQTTHandler {
 	return &MQTTHandler{
 		l: s.logger.With(zap.String("service", "mqtt")),
 	}
 }
 
-func (s *Service) NewTalkHandler() talk.Diagnostic {
+func (s *Service) NewTalkHandler() *TalkHandler {
 	return &TalkHandler{
 		l: s.logger.With(zap.String("service", "talk")),
 	}
 }
 
-func (s *Service) NewConfigOverrideHandler() config.Diagnostic {
+func (s *Service) NewConfigOverrideHandler() *ConfigOverrideHandler {
 	return &ConfigOverrideHandler{
 		l: s.logger.With(zap.String("service", "config-override")),
 	}
