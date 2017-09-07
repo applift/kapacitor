@@ -39,17 +39,53 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+func Error(l *zap.Logger, msg string, err error, ctx []keyvalue.T) {
+	if len(ctx) == 0 {
+		l.Error(msg, zap.Error(err))
+		return
+	}
+
+	if len(ctx) == 1 {
+		el := ctx[0]
+		l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
+		return
+	}
+
+	if len(ctx) == 2 {
+		x := ctx[0]
+		y := ctx[1]
+		l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
+		return
+	}
+
+	// This isn't great wrt to allocation, but should not ever actually occur
+	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
+	fields[0] = zap.Error(err)
+	for i := 1; i < len(fields); i++ {
+		kv := ctx[i-1]
+		fields[i] = zap.String(kv.Key, kv.Value)
+	}
+
+	l.Error(msg, fields...)
+}
+
 // Alert Service Handler
 
 type AlertServiceHandler struct {
 	l *zap.Logger
 }
 
-func (h *AlertServiceHandler) WithHandlerContext(ctx ...keyvalue.T) alertservice.HandlerDiagnostic {
+func zapFieldsFromContext(ctx []keyvalue.T) []zapcore.Field {
 	fields := []zapcore.Field{}
 	for _, kv := range ctx {
 		fields = append(fields, zap.String(kv.Key, kv.Value))
 	}
+
+	return fields
+}
+
+func (h *AlertServiceHandler) WithHandlerContext(ctx ...keyvalue.T) alertservice.HandlerDiagnostic {
+	fields := zapFieldsFromContext(ctx)
 
 	return &AlertServiceHandler{
 		l: h.l.With(fields...),
@@ -169,35 +205,7 @@ func (h *KapacitorHandler) ClosingEdge(collected int64, emitted int64) {
 }
 
 func (h *KapacitorHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	// Special case the three ways that the function is actually used
-	// to avoid allocations
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *KapacitorHandler) AlertTriggered(level alert.Level, id string, message string, rows *models.Row) {
@@ -241,10 +249,7 @@ type AlertaHandler struct {
 }
 
 func (h *AlertaHandler) WithContext(ctx ...keyvalue.T) alerta.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &AlertaHandler{
 		l: h.l.With(fields...),
@@ -265,10 +270,7 @@ type HipChatHandler struct {
 }
 
 func (h *HipChatHandler) WithContext(ctx ...keyvalue.T) hipchat.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &HipChatHandler{
 		l: h.l.With(fields...),
@@ -397,10 +399,7 @@ type PagerDutyHandler struct {
 }
 
 func (h *PagerDutyHandler) WithContext(ctx ...keyvalue.T) pagerduty.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &PagerDutyHandler{
 		l: h.l.With(fields...),
@@ -426,10 +425,7 @@ func (h *SlackHandler) Error(msg string, err error) {
 }
 
 func (h *SlackHandler) WithContext(ctx ...keyvalue.T) slack.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &SlackHandler{
 		l: h.l.With(fields...),
@@ -469,35 +465,7 @@ func (h *TaskStoreHandler) Debug(msg string) {
 }
 
 func (h *TaskStoreHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	// Special case the three ways that the function is actually used
-	// to avoid allocations
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *TaskStoreHandler) AlreadyMigrated(entity, id string) {
@@ -519,10 +487,7 @@ func (h *VictorOpsHandler) Error(msg string, err error) {
 }
 
 func (h *VictorOpsHandler) WithContext(ctx ...keyvalue.T) victorops.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &VictorOpsHandler{
 		l: h.l.With(fields...),
@@ -538,10 +503,7 @@ func (h *SMTPHandler) Error(msg string, err error) {
 }
 
 func (h *SMTPHandler) WithContext(ctx ...keyvalue.T) smtp.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &SMTPHandler{
 		l: h.l.With(fields...),
@@ -557,10 +519,7 @@ func (h *OpsGenieHandler) Error(msg string, err error) {
 }
 
 func (h *OpsGenieHandler) WithContext(ctx ...keyvalue.T) opsgenie.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &OpsGenieHandler{
 		l: h.l.With(fields...),
@@ -588,10 +547,7 @@ func (h *PushoverHandler) Error(msg string, err error) {
 }
 
 func (h *PushoverHandler) WithContext(ctx ...keyvalue.T) pushover.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &PushoverHandler{
 		l: h.l.With(fields...),
@@ -609,10 +565,7 @@ func (h *HTTPPostHandler) Error(msg string, err error) {
 }
 
 func (h *HTTPPostHandler) WithContext(ctx ...keyvalue.T) httppost.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &HTTPPostHandler{
 		l: h.l.With(fields...),
@@ -626,40 +579,11 @@ type SensuHandler struct {
 }
 
 func (h *SensuHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *SensuHandler) WithContext(ctx ...keyvalue.T) sensu.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &SensuHandler{
 		l: h.l.With(fields...),
@@ -677,10 +601,7 @@ func (h *SNMPTrapHandler) Error(msg string, err error) {
 }
 
 func (h *SNMPTrapHandler) WithContext(ctx ...keyvalue.T) snmptrap.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &SNMPTrapHandler{
 		l: h.l.With(fields...),
@@ -698,10 +619,7 @@ func (h *TelegramHandler) Error(msg string, err error) {
 }
 
 func (h *TelegramHandler) WithContext(ctx ...keyvalue.T) telegram.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &TelegramHandler{
 		l: h.l.With(fields...),
@@ -733,10 +651,7 @@ func (h *MQTTHandler) HandlingEvent() {
 }
 
 func (h *MQTTHandler) WithContext(ctx ...keyvalue.T) mqtt.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &MQTTHandler{
 		l: h.l.With(fields...),
@@ -754,10 +669,7 @@ func (h *TalkHandler) Error(msg string, err error) {
 }
 
 func (h *TalkHandler) WithContext(ctx ...keyvalue.T) talk.Diagnostic {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
-	}
+	fields := zapFieldsFromContext(ctx)
 
 	return &TalkHandler{
 		l: h.l.With(fields...),
@@ -991,33 +903,7 @@ type UDPHandler struct {
 }
 
 func (h *UDPHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *UDPHandler) StartedListening(addr string) {
@@ -1035,33 +921,7 @@ type InfluxDBHandler struct {
 }
 
 func (h *InfluxDBHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *InfluxDBHandler) WithClusterContext(id string) influxdb.Diagnostic {
@@ -1308,24 +1168,3 @@ func (h *CmdHandler) GoVersion() {
 func (h *CmdHandler) Info(msg string) {
 	h.l.Info(msg)
 }
-
-// Template handler
-
-//type Handler struct {
-//	l *zap.Logger
-//}
-//
-//func (h *Handler) Error(msg string, err error) {
-//	h.l.Error(msg, zap.Error(err))
-//}
-//
-//func (h *Handler) WithContext(ctx ...keyvalue.T) .Diagnostic {
-//	fields := []zapcore.Field{}
-//	for _, kv := range ctx {
-//		fields = append(fields, zap.String(kv.Key, kv.Value))
-//	}
-//
-//	return &Handler{
-//		l: h.l.With(fields...),
-//	}
-//}
