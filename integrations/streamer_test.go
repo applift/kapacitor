@@ -41,7 +41,6 @@ import (
 	"github.com/influxdata/kapacitor/services/httppost/httpposttest"
 	k8s "github.com/influxdata/kapacitor/services/k8s/client"
 	"github.com/influxdata/kapacitor/services/k8s/k8stest"
-	"github.com/influxdata/kapacitor/services/logging/loggingtest"
 	"github.com/influxdata/kapacitor/services/opsgenie"
 	"github.com/influxdata/kapacitor/services/opsgenie/opsgenietest"
 	"github.com/influxdata/kapacitor/services/pagerduty"
@@ -71,8 +70,12 @@ import (
 	"github.com/k-sone/snmpgo"
 )
 
-var logService = loggingtest.New()
-var diagService = diagnostic.NewService()
+var diagService *diagnostic.Service
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+}
 
 var dbrps = []kapacitor.DBRP{
 	{

@@ -3,13 +3,23 @@ package udf_test
 import (
 	"bufio"
 	"io"
+	"os"
 
+	"github.com/influxdata/kapacitor"
 	"github.com/influxdata/kapacitor/services/diagnostic"
 	"github.com/influxdata/kapacitor/udf"
 	"github.com/influxdata/kapacitor/udf/agent"
 )
 
-var kapacitorDiag = diagnostic.NewService().NewKapacitorHandler()
+var diagService *diagnostic.Service
+
+var kapacitorDiag kapacitor.Diagnostic
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+	kapacitorDiag = diagService.NewKapacitorHandler()
+}
 
 // IO implements a UDF process communication.
 // Connect up to UDF server via In/Out pipes.

@@ -102,9 +102,8 @@ func (cmd *Command) Run(args ...string) error {
 	}
 
 	// Initialize Logging Services
-	// TODO: come back here for diagnostic settings
-	//cmd.logService = logging.NewService(config.Logging, cmd.Stdout, cmd.Stderr)
-	cmd.diagService = diagnostic.NewService()
+	cmd.diagService = diagnostic.NewService(config.Logging, cmd.Stdout, cmd.Stderr)
+	cmd.diagService.Open()
 
 	// Initialize cmd diagnostic
 	cmd.Diag = cmd.diagService.NewCmdHandler()
@@ -144,10 +143,9 @@ func (cmd *Command) Close() error {
 	if cmd.Server != nil {
 		return cmd.Server.Close()
 	}
-	// TODO: revist for diagnostic
-	//if cmd.logService != nil {
-	//	return cmd.logService.Close()
-	//}
+	if cmd.diagService != nil {
+		return cmd.diagService.Close()
+	}
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -19,7 +20,12 @@ import (
 	"github.com/influxdata/kapacitor/services/storage/storagetest"
 )
 
-var diagService = diagnostic.NewService()
+var diagService *diagnostic.Service
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+}
 
 type SectionA struct {
 	Option1 string `override:"option-1"`

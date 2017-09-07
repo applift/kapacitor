@@ -3,6 +3,7 @@ package kapacitor_test
 import (
 	"bytes"
 	"io"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -17,7 +18,15 @@ import (
 	udf_test "github.com/influxdata/kapacitor/udf/test"
 )
 
-var kapacitorDiag = diagnostic.NewService().NewKapacitorHandler()
+var diagService *diagnostic.Service
+
+var kapacitorDiag kapacitor.Diagnostic
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+	kapacitorDiag = diagService.NewKapacitorHandler()
+}
 
 func newUDFSocket(name string) (*kapacitor.UDFSocket, *udf_test.IO) {
 	uio := udf_test.NewIO()

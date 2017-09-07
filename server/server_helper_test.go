@@ -39,7 +39,8 @@ func NewServer(c *server.Config) *Server {
 		Branch:  "testBranch",
 	}
 	c.HTTP.LogEnabled = testing.Verbose()
-	ds := diagnostic.NewService()
+	ds := diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	ds.Open()
 	srv, err := server.New(c, buildInfo, ds)
 	if err != nil {
 		panic(err)

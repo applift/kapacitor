@@ -3,7 +3,9 @@ package diagnostic
 import (
 	"bytes"
 	"errors"
+	"io"
 	"os"
+	"path"
 
 	"github.com/influxdata/kapacitor"
 	//"github.com/influxdata/kapacitor/server"
@@ -32,23 +34,81 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type Service struct {
-	logger *zap.Logger
+type nopCloser struct {
+	f io.Writer
 }
 
-func NewService() *Service {
+func (c *nopCloser) Write(b []byte) (int, error) { return c.f.Write(b) }
+func (c *nopCloser) Close() error                { return nil }
+
+type Service struct {
+	c Config
+
+	logger *zap.Logger
+
+	f      io.WriteCloser
+	stdout io.Writer
+	stderr io.Writer
+}
+
+func NewService(c Config, stdout, stderr io.Writer) *Service {
+	return &Service{
+		c:      c,
+		stdout: stdout,
+		stderr: stderr,
+	}
+}
+
+func (s *Service) Open() error {
+	var level zapcore.Level
+	switch s.c.Level {
+	case "INFO":
+		level = zapcore.InfoLevel
+	case "ERROR":
+		level = zapcore.ErrorLevel
+	case "DEBUG":
+		level = zapcore.DebugLevel
+	}
 	p := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return true
+		return lvl <= level
 	})
-	out := zapcore.AddSync(os.Stdout)
+
+	switch s.c.File {
+	case "STDERR":
+		s.f = &nopCloser{f: s.stderr}
+	case "STDOUT":
+		s.f = &nopCloser{f: s.stdout}
+	default:
+		dir := path.Dir(s.c.File)
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			err := os.MkdirAll(dir, 0755)
+			if err != nil {
+				return err
+			}
+		}
+
+		f, err := os.OpenFile(s.c.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640)
+		if err != nil {
+			return err
+		}
+		s.f = f
+	}
+
+	out := zapcore.AddSync(s.f)
 	consoleEnc := zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
 	core := zapcore.NewTee(
 		zapcore.NewCore(consoleEnc, out, p),
 	)
 	l := zap.New(core)
-	return &Service{
-		logger: l,
+	s.logger = l
+	return nil
+}
+
+func (s *Service) Close() error {
+	if s.f != nil {
+		return s.f.Close()
 	}
+	return nil
 }
 
 func (s *Service) NewVictorOpsHandler() victorops.Diagnostic {

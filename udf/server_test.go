@@ -2,10 +2,12 @@ package udf_test
 
 import (
 	"errors"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/influxdata/kapacitor"
 	"github.com/influxdata/kapacitor/edge"
 	"github.com/influxdata/kapacitor/models"
 	"github.com/influxdata/kapacitor/services/diagnostic"
@@ -14,7 +16,15 @@ import (
 	udf_test "github.com/influxdata/kapacitor/udf/test"
 )
 
-var kapacitorDiag = diagnostic.NewService().NewKapacitorHandler()
+var diagService *diagnostic.Service
+
+var kapacitorDiag kapacitor.Diagnostic
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+	kapacitorDiag = diagService.NewKapacitorHandler()
+}
 
 func TestUDF_StartStop(t *testing.T) {
 	u := udf_test.NewIO()

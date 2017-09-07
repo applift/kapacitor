@@ -21,8 +21,6 @@ import (
 	"github.com/influxdata/kapacitor/uuid"
 )
 
-var ls = logSerivce{}
-
 const (
 	randomTokenData = "test random data that is 64 bytes long xxxxxxxxxxxxxxxxxxxxxxxxx"
 	testClusterName = "testcluster0"
@@ -39,7 +37,12 @@ var (
 	testSubName            = "kapacitor-" + testKapacitorClusterID.String()
 )
 
-var diagService = diagnostic.NewService()
+var diagService *diagnostic.Service
+
+func init() {
+	diagService = diagnostic.NewService(diagnostic.NewConfig(), os.Stdout, os.Stderr)
+	diagService.Open()
+}
 
 func init() {
 	if len(randomTokenData) != tokenSize {

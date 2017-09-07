@@ -1,4 +1,4 @@
-package logging
+package diagnostic
 
 type Config struct {
 	File  string `toml:"file"`
