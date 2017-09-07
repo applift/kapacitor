@@ -165,17 +165,6 @@ func (h *KapacitorHandler) ClosingEdge(collected int64, emitted int64) {
 	h.l.Debug("closing edge", zap.Int64("collected", collected), zap.Int64("emitted", emitted))
 }
 
-//func (h *KapacitorHandler) WithContext(ctx ...keyvalue.T) kapacitor.Diagnostic {
-//	fields := []zapcore.Field{}
-//	for _, kv := range ctx {
-//		fields = append(fields, zap.String(kv.Key, kv.Value))
-//	}
-//
-//	return &KapacitorHandler{
-//		l: h.l.With(fields...),
-//	}
-//}
-
 func (h *KapacitorHandler) Error(msg string, err error, ctx ...keyvalue.T) {
 	// Special case the three ways that the function is actually used
 	// to avoid allocations
