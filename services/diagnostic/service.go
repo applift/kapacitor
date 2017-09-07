@@ -74,7 +74,9 @@ func (s *Service) Open() error {
 	}
 
 	out := zapcore.AddSync(s.f)
-	consoleEnc := zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
+	encConfig := zap.NewProductionEncoderConfig()
+	encConfig.EncodeTime = zapcore.EpochNanosTimeEncoder
+	consoleEnc := zapcore.NewConsoleEncoder(encConfig)
 	core := zapcore.NewTee(
 		zapcore.NewCore(consoleEnc, out, p),
 	)
