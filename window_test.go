@@ -19,10 +19,11 @@ func newNodeDiagnostic() *nodeDiagnostic { return &nodeDiagnostic{} }
 func (d *nodeDiagnostic) Error(msg string, err error, ctx ...keyvalue.T) {}
 func (d *nodeDiagnostic) AlertTriggered(level alert.Level, id string, message string, rows *models.Row) {
 }
-func (d *nodeDiagnostic) SettingReplicas(new int, old int, id string)    {}
-func (d *nodeDiagnostic) StartingBatchQuery(q string)                    {}
-func (d *nodeDiagnostic) LogData(key string, prefix string, data string) {}
-func (d *nodeDiagnostic) UDFLog(s string)                                {}
+func (d *nodeDiagnostic) SettingReplicas(new int, old int, id string)                        {}
+func (d *nodeDiagnostic) StartingBatchQuery(q string)                                        {}
+func (d *nodeDiagnostic) LogBatchData(level, prefix string, batch edge.BufferedBatchMessage) {}
+func (d *nodeDiagnostic) LogPointData(level, prefix string, point edge.PointMessage)         {}
+func (d *nodeDiagnostic) UDFLog(s string)                                                    {}
 
 func TestWindowBufferByTime(t *testing.T) {
 	assert := assert.New(t)

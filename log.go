@@ -62,29 +62,14 @@ func (n *LogNode) EndBatch(end edge.EndBatchMessage) (edge.Message, error) {
 }
 
 func (n *LogNode) BufferedBatch(batch edge.BufferedBatchMessage) (edge.Message, error) {
-	n.buf.Reset()
-	if err := n.enc.Encode(batch); err != nil {
-		n.incrementErrorCount()
-		n.diag.Error("failed to encode batch data", err)
-		return batch, nil
-	}
 	// TODO: fix prefix and other loger here
-	//       dont log log this as the type of string it currently is
-	n.diag.LogData(n.key, "", n.buf.String())
+	n.diag.LogBatchData(n.key, "batch", batch)
 	return batch, nil
 }
 
 func (n *LogNode) Point(p edge.PointMessage) (edge.Message, error) {
-	n.buf.Reset()
-	if err := n.enc.Encode(p); err != nil {
-		n.incrementErrorCount()
-		n.diag.Error("failed to encode stream data", err)
-		return p, nil
-	}
-
 	// TODO: fix prefix and other loger here
-	//       dont log log this as the type of string it currently is
-	n.diag.LogData(n.key, "Prefix", n.buf.String())
+	n.diag.LogPointData(n.key, "point", p)
 	return p, nil
 }
 

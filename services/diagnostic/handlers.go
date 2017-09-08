@@ -229,13 +229,65 @@ func (h *KapacitorHandler) StartingBatchQuery(q string) {
 	h.l.Debug("starting next batch query", zap.String("query", q))
 }
 
-func (h *KapacitorHandler) LogData(level string, prefix, data string) {
-	switch level {
-	case "info":
-		h.l.Info("listing data", zap.String("prefix", prefix), zap.String("data", data))
-	default:
+func TagPairs(tags models.Tags) []string {
+	ts := []string{}
+	for k, v := range tags {
+		ts = append(ts, k+"="+v)
 	}
-	h.l.Info("listing data", zap.String("prefix", prefix), zap.String("data", data))
+
+	return ts
+}
+
+func FieldPairs(tags models.Fields) []string {
+	ts := []string{}
+	for k, v := range tags {
+		ts = append(ts, fmt.Sprintf("%s=%v", k, v))
+	}
+
+	return ts
+}
+
+// TODO: deal with prefix and level
+func (h *KapacitorHandler) LogPointData(level, prefix string, point edge.PointMessage) {
+
+	h.l.Info(prefix,
+		zap.String("name", point.Name()),
+		zap.String("db", point.Database()),
+		zap.String("rp", point.RetentionPolicy()),
+		zap.String("group", string(point.GroupID())),
+		zap.Strings("dimensions", point.Dimensions().TagNames),
+		zap.Strings("tags", TagPairs(point.Tags())),
+		zap.Strings("fields", FieldPairs(point.Fields())),
+		zap.Time("time", point.Time()),
+	)
+}
+
+// TODO: deal with prefix and level
+func (h *KapacitorHandler) LogBatchData(level, prefix string, batch edge.BufferedBatchMessage) {
+	begin := batch.Begin()
+	h.l.Info("Begin batch",
+		zap.String("name", begin.Name()),
+		zap.String("group", string(begin.GroupID())),
+		zap.Strings("tags", TagPairs(begin.Tags())),
+		zap.Time("time", begin.Time()),
+	)
+
+	for _, p := range batch.Points() {
+		h.l.Info("batch point",
+			zap.String("name", begin.Name()),
+			zap.String("group", string(begin.GroupID())),
+			zap.Strings("tags", TagPairs(p.Tags())),
+			zap.Strings("fields", FieldPairs(p.Fields())),
+			zap.Time("time", p.Time()),
+		)
+	}
+
+	h.l.Info("End batch",
+		zap.String("name", begin.Name()),
+		zap.String("group", string(begin.GroupID())),
+		zap.Strings("tags", TagPairs(begin.Tags())),
+		zap.Time("time", begin.Time()),
+	)
 }
 
 func (h *KapacitorHandler) UDFLog(s string) {

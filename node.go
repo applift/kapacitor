@@ -39,7 +39,8 @@ type NodeDiagnostic interface {
 	StartingBatchQuery(q string)
 
 	// LogNode
-	LogData(key, prefix, data string)
+	LogPointData(key, prefix string, data edge.PointMessage)
+	LogBatchData(key, prefix string, data edge.BufferedBatchMessage)
 
 	//UDF
 	UDFLog(s string)
