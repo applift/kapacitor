@@ -396,6 +396,7 @@ func (s *Server) initHTTPDService() {
 	srv := httpd.NewService(s.config.HTTP, s.hostname, d)
 
 	srv.Handler.PointsWriter = s.TaskMaster
+	srv.Handler.DiagService = s.DiagService
 	srv.Handler.Version = s.BuildInfo.Version
 
 	s.HTTPDService = srv

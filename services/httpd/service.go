@@ -112,7 +112,6 @@ func NewService(c Config, hostname string, d Diagnostic) *Service {
 			c.SharedSecret,
 		),
 		diag: d,
-		//httpServerLogger: li.NewStaticLevelLogger("[httpd]", log.LstdFlags, logging.ERROR),
 		httpServerErrorLogger: d.NewHTTPServerErrorLogger(),
 	}
 	return s

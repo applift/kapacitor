@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/pprof"
 	"strings"
@@ -21,7 +20,6 @@ import (
 	"github.com/influxdata/influxdb/uuid"
 	"github.com/influxdata/kapacitor/auth"
 	"github.com/influxdata/kapacitor/client/v1"
-	"github.com/influxdata/wlog"
 )
 
 // statistics gathered by the httpd package.
@@ -83,15 +81,15 @@ type Handler struct {
 		WritePoints(database, retentionPolicy string, consistencyLevel models.ConsistencyLevel, points []models.Point) error
 	}
 
+	DiagService interface {
+		SetLogLevelFromName(lvl string) error
+	}
+
 	diag Diagnostic
 	// Detailed logging of write path
 	// Uses normal logger
 	writeTrace bool
 
-	// Common log format logger.
-	// This logger does not use log levels with wlog.
-	// Its simply a binary on off from the config.
-	clfLogger *log.Logger
 	// Log every HTTP access.
 	loggingEnabled bool
 
@@ -387,7 +385,7 @@ func (h *Handler) serveLogLevel(w http.ResponseWriter, r *http.Request) {
 		HttpError(w, "invalid json: "+err.Error(), true, http.StatusBadRequest)
 		return
 	}
-	err = wlog.SetLevelFromName(opt.Level)
+	err = h.DiagService.SetLogLevelFromName(opt.Level)
 	if err != nil {
 		HttpError(w, err.Error(), true, http.StatusBadRequest)
 		return

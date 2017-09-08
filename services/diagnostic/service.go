@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path"
+	"strings"
+	"sync"
 
 	//"github.com/influxdata/kapacitor/server"
 
@@ -28,6 +30,9 @@ type Service struct {
 	f      io.WriteCloser
 	stdout io.Writer
 	stderr io.Writer
+
+	mu    sync.RWMutex
+	level string
 }
 
 func NewService(c Config, stdout, stderr io.Writer) *Service {
@@ -38,18 +43,45 @@ func NewService(c Config, stdout, stderr io.Writer) *Service {
 	}
 }
 
-func (s *Service) Open() error {
+func (s *Service) SetLogLevelFromName(lvl string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	level := strings.ToUpper(lvl)
+	switch level {
+	case "INFO", "ERROR", "WARN", "DEBUG":
+		s.level = level
+	default:
+		return errors.New("invalid log level")
+	}
+
+	return nil
+}
+
+func zapcoreLevelFromName(lvl string) zapcore.Level {
 	var level zapcore.Level
-	switch s.c.Level {
+	switch lvl {
 	case "INFO":
 		level = zapcore.InfoLevel
 	case "ERROR":
 		level = zapcore.ErrorLevel
+	case "WARN":
+		level = zapcore.WarnLevel
 	case "DEBUG":
 		level = zapcore.DebugLevel
 	}
+
+	return level
+}
+
+func (s *Service) Open() error {
+	s.mu.Lock()
+	s.level = s.c.Level
+	s.mu.Unlock()
+
 	p := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= level
+		s.mu.RLock()
+		defer s.mu.RUnlock()
+		return lvl >= zapcoreLevelFromName(s.level)
 	})
 
 	switch s.c.File {
