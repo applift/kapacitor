@@ -396,24 +396,22 @@ func (s *Service) NewTritonHandler() *ScraperHandler {
 }
 
 func (s *Service) NewStaticLevelHandler(level string, service string) (*StaticLevelHandler, error) {
-	var ll LogLevel
+	var ll logLevel
 
 	switch level {
 	case "debug":
-		ll = LLDebug
+		ll = llDebug
 	case "error":
-		ll = LLError
-	case "fatal":
-		ll = LLFatal
+		ll = llError
 	case "info":
-		ll = LLInfo
+		ll = llInfo
 	case "warn":
-		ll = LLWarn
+		ll = llWarn
 	default:
-		ll = LLInvalid
+		ll = llInvalid
 	}
 
-	if ll == LLInvalid {
+	if ll == llInvalid {
 		return nil, errors.New("invalid log level")
 	}
 

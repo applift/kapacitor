@@ -76,9 +76,9 @@ type AlertServiceHandler struct {
 }
 
 func zapFieldsFromContext(ctx []keyvalue.T) []zapcore.Field {
-	fields := []zapcore.Field{}
-	for _, kv := range ctx {
-		fields = append(fields, zap.String(kv.Key, kv.Value))
+	fields := make([]zapcore.Field, len(ctx))
+	for i, kv := range ctx {
+		fields[i] = zap.String(kv.Key, kv.Value)
 	}
 
 	return fields
@@ -113,33 +113,7 @@ func (h *AlertServiceHandler) FoundNewHandler(key string) {
 }
 
 func (h *AlertServiceHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 // Kapcitor Handler
@@ -342,7 +316,7 @@ type HTTPDHandler struct {
 func (h *HTTPDHandler) NewHTTPServerErrorLogger() *log.Logger {
 	s := &StaticLevelHandler{
 		l:     h.l.With(zap.String("service", "httpd_server_errors")),
-		level: LLError,
+		level: llError,
 	}
 
 	return log.New(s, "", log.LstdFlags)
@@ -743,33 +717,7 @@ type ServerHandler struct {
 }
 
 func (h *ServerHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *ServerHandler) Info(msg string, ctx ...keyvalue.T) {
@@ -833,33 +781,7 @@ type ReplayHandler struct {
 }
 
 func (h *ReplayHandler) Error(msg string, err error, ctx ...keyvalue.T) {
-	if len(ctx) == 0 {
-		h.l.Error(msg, zap.Error(err))
-		return
-	}
-
-	if len(ctx) == 1 {
-		el := ctx[0]
-		h.l.Error(msg, zap.Error(err), zap.String(el.Key, el.Value))
-		return
-	}
-
-	if len(ctx) == 2 {
-		x := ctx[0]
-		y := ctx[1]
-		h.l.Error(msg, zap.Error(err), zap.String(x.Key, x.Value), zap.String(y.Key, y.Value))
-		return
-	}
-
-	// This isn't great wrt to allocation, but should not ever actually occur
-	fields := make([]zapcore.Field, len(ctx)+1) // +1 for error
-	fields[0] = zap.Error(err)
-	for i := 1; i < len(fields); i++ {
-		kv := ctx[i-1]
-		fields[i] = zap.String(kv.Key, kv.Value)
-	}
-
-	h.l.Error(msg, fields...)
+	Error(h.l, msg, err, ctx)
 }
 
 func (h *ReplayHandler) Debug(msg string, ctx ...keyvalue.T) {
@@ -1164,33 +1086,30 @@ func (h *EdgeHandler) Emit(mtype edge.MessageType) {
 	h.l.Debug("emitted message", zap.Stringer("message_type", mtype))
 }
 
-type LogLevel int
+type logLevel int
 
 const (
-	LLInvalid LogLevel = iota
-	LLDebug
-	LLError
-	LLFatal
-	LLInfo
-	LLWarn
+	llInvalid logLevel = iota
+	llDebug
+	llError
+	llInfo
+	llWarn
 )
 
 type StaticLevelHandler struct {
 	l     *zap.Logger
-	level LogLevel
+	level logLevel
 }
 
 func (h *StaticLevelHandler) Write(buf []byte) (int, error) {
 	switch h.level {
-	case LLDebug:
+	case llDebug:
 		h.l.Debug(string(buf))
-	case LLError:
+	case llError:
 		h.l.Error(string(buf))
-	case LLFatal:
-		h.l.Fatal(string(buf))
-	case LLInfo:
+	case llInfo:
 		h.l.Info(string(buf))
-	case LLWarn:
+	case llWarn:
 		h.l.Warn(string(buf))
 	default:
 		return 0, errors.New("invalid log level")
