@@ -3,33 +3,30 @@ package kapacitor
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/influxdata/kapacitor/edge"
 	"github.com/influxdata/kapacitor/pipeline"
-	"github.com/influxdata/wlog"
 )
 
 type LogNode struct {
 	node
 
-	key string
-	buf bytes.Buffer
-	enc *json.Encoder
+	key    string
+	level  string
+	prefix string
+	buf    bytes.Buffer
+	enc    *json.Encoder
 
 	batchBuffer *edge.BatchBuffer
 }
 
 // Create a new  LogNode which logs all data it receives
 func newLogNode(et *ExecutingTask, n *pipeline.LogNode, d NodeDiagnostic) (*LogNode, error) {
-	level, ok := wlog.StringToLevel[strings.ToUpper(n.Level)]
-	if !ok {
-		return nil, fmt.Errorf("invalid log level %s", n.Level)
-	}
 	nn := &LogNode{
 		node:        node{Node: n, et: et, diag: d},
-		key:         fmt.Sprintf("%c! %s", wlog.ReverseLevels[level], n.Prefix),
+		level:       strings.ToUpper(n.Level),
+		prefix:      n.Prefix,
 		batchBuffer: new(edge.BatchBuffer),
 	}
 	nn.enc = json.NewEncoder(&nn.buf)
@@ -62,14 +59,12 @@ func (n *LogNode) EndBatch(end edge.EndBatchMessage) (edge.Message, error) {
 }
 
 func (n *LogNode) BufferedBatch(batch edge.BufferedBatchMessage) (edge.Message, error) {
-	// TODO: fix prefix and other loger here
-	n.diag.LogBatchData(n.key, "batch", batch)
+	n.diag.LogBatchData(n.level, n.prefix, batch)
 	return batch, nil
 }
 
 func (n *LogNode) Point(p edge.PointMessage) (edge.Message, error) {
-	// TODO: fix prefix and other loger here
-	n.diag.LogPointData(n.key, "point", p)
+	n.diag.LogPointData(n.level, n.prefix, p)
 	return p, nil
 }
 

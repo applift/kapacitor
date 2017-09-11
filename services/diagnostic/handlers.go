@@ -221,10 +221,9 @@ func FieldPairs(tags models.Fields) []string {
 	return ts
 }
 
-// TODO: deal with prefix and level
 func (h *KapacitorHandler) LogPointData(level, prefix string, point edge.PointMessage) {
-
-	h.l.Info(prefix,
+	fields := []zapcore.Field{
+		zap.String("prefix", prefix),
 		zap.String("name", point.Name()),
 		zap.String("db", point.Database()),
 		zap.String("rp", point.RetentionPolicy()),
@@ -233,13 +232,45 @@ func (h *KapacitorHandler) LogPointData(level, prefix string, point edge.PointMe
 		zap.Strings("tags", TagPairs(point.Tags())),
 		zap.Strings("fields", FieldPairs(point.Fields())),
 		zap.Time("time", point.Time()),
-	)
+	}
+
+	var log func(string, ...zapcore.Field)
+
+	switch level {
+	case "INFO":
+		log = h.l.Info
+	case "ERROR":
+		log = h.l.Error
+	case "DEBUG":
+		log = h.l.Debug
+	case "WARN":
+		log = h.l.Warn
+	default:
+		log = h.l.Info
+	}
+
+	log("point", fields...)
 }
 
-// TODO: deal with prefix and level
 func (h *KapacitorHandler) LogBatchData(level, prefix string, batch edge.BufferedBatchMessage) {
+	var log func(string, ...zapcore.Field)
+
+	switch level {
+	case "INFO":
+		log = h.l.Info
+	case "ERROR":
+		log = h.l.Error
+	case "DEBUG":
+		log = h.l.Debug
+	case "WARN":
+		log = h.l.Warn
+	default:
+		log = h.l.Info
+	}
+
 	begin := batch.Begin()
-	h.l.Info("Begin batch",
+	log("begin batch",
+		zap.String("prefix", prefix),
 		zap.String("name", begin.Name()),
 		zap.String("group", string(begin.GroupID())),
 		zap.Strings("tags", TagPairs(begin.Tags())),
@@ -247,7 +278,8 @@ func (h *KapacitorHandler) LogBatchData(level, prefix string, batch edge.Buffere
 	)
 
 	for _, p := range batch.Points() {
-		h.l.Info("batch point",
+		log("batch point",
+			zap.String("prefix", prefix),
 			zap.String("name", begin.Name()),
 			zap.String("group", string(begin.GroupID())),
 			zap.Strings("tags", TagPairs(p.Tags())),
@@ -256,7 +288,8 @@ func (h *KapacitorHandler) LogBatchData(level, prefix string, batch edge.Buffere
 		)
 	}
 
-	h.l.Info("End batch",
+	log("End batch",
+		zap.String("prefix", prefix),
 		zap.String("name", begin.Name()),
 		zap.String("group", string(begin.GroupID())),
 		zap.Strings("tags", TagPairs(begin.Tags())),
