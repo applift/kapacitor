@@ -153,7 +153,7 @@ func (n *node) start(snapshot []byte) {
 					err = fmt.Errorf("%s: Trace:%s", r, string(trace[:n]))
 				}
 				n.abortParentEdges()
-				n.diag.Error("encountered panic", err)
+				n.diag.Error("node failed", err)
 
 				err = errors.Wrap(err, n.Name())
 			}

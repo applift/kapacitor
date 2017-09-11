@@ -61,12 +61,11 @@ import (
 
 // Config represents the configuration format for the kapacitord binary.
 type Config struct {
-	HTTP     httpd.Config      `toml:"http"`
-	Replay   replay.Config     `toml:"replay"`
-	Storage  storage.Config    `toml:"storage"`
-	Task     task_store.Config `toml:"task"`
-	InfluxDB []influxdb.Config `toml:"influxdb" override:"influxdb,element-key=name"`
-	// TODO(desa): this should change to diagnostic eventually
+	HTTP           httpd.Config      `toml:"http"`
+	Replay         replay.Config     `toml:"replay"`
+	Storage        storage.Config    `toml:"storage"`
+	Task           task_store.Config `toml:"task"`
+	InfluxDB       []influxdb.Config `toml:"influxdb" override:"influxdb,element-key=name"`
 	Logging        diagnostic.Config `toml:"logging"`
 	ConfigOverride config.Config     `toml:"config-override"`
 

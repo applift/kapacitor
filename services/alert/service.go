@@ -733,7 +733,6 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		keyvalue.KV("handler", spec.ID),
 		keyvalue.KV("topic", spec.Topic),
 	}
-	handlerDiag := s.diag.WithHandlerContext(ctx...)
 	switch spec.Kind {
 	case "aggregate":
 		c := newDefaultAggregateHandlerConfig(s.EventCollector)
@@ -741,6 +740,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h, err = NewAggregateHandler(c, handlerDiag)
 		if err != nil {
 			return handler{}, err
@@ -764,6 +764,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h = NewExecHandler(c, handlerDiag)
 		h = newExternalHandler(h)
 	case "hipchat":
@@ -780,6 +781,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h, err = NewLogHandler(c, handlerDiag)
 		if err != nil {
 			return handler{}, err
@@ -833,6 +835,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h = NewPublishHandler(c, handlerDiag)
 	case "sensu":
 		c := sensu.HandlerConfig{}
@@ -881,6 +884,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 		if err != nil {
 			return handler{}, err
 		}
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h = NewTCPHandler(c, handlerDiag)
 		h = newExternalHandler(h)
 	case "telegram":
@@ -904,6 +908,7 @@ func (s *Service) createHandlerFromSpec(spec HandlerSpec) (handler, error) {
 	}
 	if spec.Match != "" {
 		// Wrap handler in match handler
+		handlerDiag := s.diag.WithHandlerContext(ctx...)
 		h, err = newMatchHandler(spec.Match, h, handlerDiag)
 	}
 	return handler{Spec: spec, Handler: h}, err
